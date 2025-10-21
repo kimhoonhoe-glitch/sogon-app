@@ -47,3 +47,13 @@ Prisma schema: \`prisma/schema.prisma\`
   * 서버 사이드 익명 모드 결정 (클라이언트 조작 불가)
   * Subscription 레코드 자동 생성 (rate limit 우회 방지)
   * 웹훅 핸들러 upsert 로직 구현
+
+### Dashboard 리디자인 (2024-10-21)
+- EmotionSummaryCard: 프로그레스 바로 감정 비율 시각화
+- EmotionLineChart: Chart.js로 30일 감정 추이 라인 차트
+- AIInsightCard: OpenAI로 주간 패턴 분석 및 인사이트 제공
+- EmotionCalendar: 날짜별 감정 이모지 달력
+- 반투명 카드 디자인 (backdrop-blur)
+- 스크롤 애니메이션 (fadeIn, slideInLeft, slideInRight, slideInUp)
+- 감정 색상 통일 (lib/emotions.ts로 분리)
+- OPENAI_API_KEY 없을 때 에러 방지 (dummy-key fallback)

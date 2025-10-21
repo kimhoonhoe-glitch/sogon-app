@@ -34,13 +34,6 @@ interface EmotionLineChartProps {
   data: EmotionDataPoint[]
 }
 
-const EMOTION_COLORS = {
-  joy: '#FFD93D',
-  sadness: '#6C95C7',
-  anger: '#FF6B6B',
-  anxiety: '#A569BD',
-  stress: '#F39C12',
-}
 
 export default function EmotionLineChart({ data }: EmotionLineChartProps) {
   if (!data || data.length === 0) {
@@ -69,7 +62,7 @@ export default function EmotionLineChart({ data }: EmotionLineChartProps) {
   const datasets = emotionKeys.map(emotion => {
     const emotionData = data.map(d => d.emotions[emotion] || 0)
     const emotionInfo = EMOTION_CATEGORIES[emotion as keyof typeof EMOTION_CATEGORIES]
-    const color = EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS]
+    const color = emotionInfo.color
 
     return {
       label: `${emotionInfo.emoji} ${emotionInfo.label}`,

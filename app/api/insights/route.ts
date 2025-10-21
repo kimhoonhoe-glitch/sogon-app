@@ -20,6 +20,12 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({
+        insight: `${period === 'week' ? '이번 주' : '이번 달'}에는 다양한 감정을 경험하셨네요. 자신의 감정을 잘 인식하고 있다는 뜻이에요. 💙`
+      })
+    }
+
     const emotionSummary = Object.entries(emotionData)
       .map(([emotion, count]) => {
         const info = EMOTION_CATEGORIES[emotion as keyof typeof EMOTION_CATEGORIES]

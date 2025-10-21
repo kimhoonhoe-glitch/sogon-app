@@ -15,7 +15,7 @@ export default function AIInsightCard({ period, emotionData }: AIInsightCardProp
     if (Object.keys(emotionData).length > 0) {
       fetchInsight()
     }
-  }, [period, JSON.stringify(emotionData)])
+  }, [period, emotionData])
 
   const fetchInsight = async () => {
     try {
@@ -29,9 +29,14 @@ export default function AIInsightCard({ period, emotionData }: AIInsightCardProp
       if (response.ok) {
         const data = await response.json()
         setInsight(data.insight)
+      } else if (response.status === 401) {
+        setInsight('로그인이 필요한 기능이에요. 💙')
+      } else {
+        setInsight('인사이트를 가져오는 중 오류가 발생했어요. 잠시 후 다시 시도해주세요. 💙')
       }
     } catch (error) {
       console.error('Failed to fetch insight:', error)
+      setInsight('데이터를 분석하는 중 문제가 발생했어요. 💙')
     } finally {
       setLoading(false)
     }
