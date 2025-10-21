@@ -82,7 +82,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-4 mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-3xl">
               {session?.user?.image ? (
-                <img src={session.user.image} alt="Profile" className="w-full h-full rounded-full" />
+                <img src={session.user.image} alt="프로필" className="w-full h-full rounded-full" />
               ) : (
                 '👤'
               )}

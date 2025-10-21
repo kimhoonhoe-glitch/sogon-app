@@ -1,0 +1,68 @@
+당신은 기존 Next.js 14 + TS + Tailwind + shadcn/ui 기반의 감정 코치 앱(로컬 저장, /api/analyze 포함)을 개선합니다. 질문 없이 수정 적용하세요.
+
+목표: “지원 톤(답변 모드) + TTS 보이스 프리셋 + 1분 루틴 실습(호흡 페이서) + 주간 음성 요약”을 추가.
+
+1) 지원 톤 데이터 추가
+- 새 파일 lib/supportStyles.ts 생성:
+  export type SupportStyle = {
+    id: string; name: string; desc: string;
+    systemAddendum: string;        // 톤별 프롬프트 추가
+    ttsVoiceHint?: string;         // 'female_calm' 등
+  };
+  export const SUPPORT_STYLES: SupportStyle[] = [
+    { id: "kind", name: "다정한 톤", desc: "포근하고 안전한 위로. 연애/성적 맥락 금지.",
+      systemAddendum: "따뜻하고 포근한 톤. 연애·성적·역할극 표현 금지. 무조건 안전·자기보호 우선." , ttsVoiceHint: "female_calm"},
+    { id: "friend", name: "친구 톤", desc: "편안한 공감 + 작은 제안.",
+      systemAddendum: "친근한 존댓말. '네 잘못이 아니에요' 같은 지지 표현을 선호. 해결책은 1개만.", ttsVoiceHint: "neutral_warm"},
+    { id: "older", name: "형/누나 톤", desc: "든든한 격려 + 현실적인 한 걸음.",
+      systemAddendum: "보호적·격려. 꾸짖지 말 것. 다음 한 걸음만 제안.", ttsVoiceHint: "low_warm"},
+    { id: "younger", name: "동생 톤", desc: "밝은 응원, 공감 위주.",
+      systemAddendum: "밝고 상냥. 해결책보다 감정 공감 강조.", ttsVoiceHint: "bright_soft"},
+    { id: "parent", name: "보호자 톤", desc: "안정·안심·무조건 지지.",
+      systemAddendum: "훈계·죄책 유발 금지. 안전감·수용을 최우선.", ttsVoiceHint: "calm_warm"},
+    { id: "mentor", name: "선생님 톤", desc: "성장 마인드, 1분 과제 1개.",
+      systemAddendum: "평가·채점 금지. '아직'을 강조. 매우 작은 과제 1개.", ttsVoiceHint: "clear_calm"},
+    { id: "senior", name: "선배 톤", desc: "실전 팁 1개, 현실적.",
+      systemAddendum: "장황한 계획 금지. '지금 바로 할 1가지'만.", ttsVoiceHint: "neutral_low"}
+  ];
+
+2) UI: 홈 상단에 “지원 톤 선택” 컴포넌트 추가
+- components/StyleSelector.tsx 생성: 칩 버튼(라디오 그룹). 각 항목은 name/desc 표시, 선택 시 예시 한 문장 미리보기.
+- localStorage("maumjigi.style")에 선택 저장. 기본값 "kind".
+- app/page.tsx 상단에 <StyleSelector/> 렌더.
+
+3) /api/analyze에 톤 적용
+- 요청 바디에 styleId 추가. 클라이언트에서 현재 선택 스타일을 포함해 POST.
+- 서버에서 SUPPORT_STYLES에서 systemAddendum을 찾아 system 메시지에 이어붙임.
+- 공통 system 헤더(안전/면책/비난금지/1분 루틴)는 유지.
+- “연애/성적·역할극 금지”를 명시(다정한 톤 포함 모든 톤에 추가로 한번 더).
+- 응답 JSON 스키마는 기존 그대로.
+
+4) TTS 보이스 프리셋
+- lib/speech.ts에 스타일→보이스 힌트 매핑 추가. Web Speech 지원 범위 내에서 voice name을 우선 선택(없으면 기본).
+- ResultCard의 “듣기” 버튼 클릭 시 현재 스타일의 voice 힌트를 반영.
+
+5) 1분 루틴 실습(호흡 페이서)
+- components/BreathPacer.tsx 생성: 원형이 4초 들숨→7초 멈춤→8초 날숨 애니메이션(총 19초, 3회 반복 옵션). 라일락/민트 색, 진행 점 표시.
+- ResultCard 하단에 “루틴 실습하기” 버튼 → 루틴이 호흡 관련일 때 <BreathPacer/> 모달 표시. 루틴이 호흡이 아니면 60초 미니 타이머 모달.
+
+6) 주간 음성 요약
+- app/insights/page.tsx에 “주간 음성 요약 듣기” 버튼 추가: 최근 7일 요약 텍스트를 생성(간단 규칙: 최빈 감정/태그 + 칭찬 + 다음 한 걸음) → TTS로 재생.
+- “오디오 저장” 없이 즉시 재생만(프라이버시).
+
+7) Trust UI 강화
+- 헤더 우측에 “로컬 저장/1초 삭제” 배지 + 클릭 시 토글 설명(모달).
+- 각 결과 카드에 “이 기록만 삭제” 버튼.
+
+8) 이벤트 로깅(로컬)
+- localStorage에 카운터 저장: style_usage.{styleId}++, pacer_used++, weekly_voice_recap++.
+- app/insights에 간단 지표(내 기기 전용) 표시.
+
+9) 카피/접근성
+- StyleSelector에 툴팁: “답변의 말투만 달라져요. 의료/상담은 제공하지 않습니다.”
+- 위기 감지 시 결과 숨김 + 배너 유지.
+
+10) README 업데이트
+- 지원 톤 설명/가드레일(연애·성적·역할극 금지)과 프라이버시·면책 문구 추가.
+- 브라우저 음성 지원 안내(미지원 시 텍스트 사용).
+완료 후: 변경된 파일 목록, 실행 방법, 테스트 체크리스트를 출력.

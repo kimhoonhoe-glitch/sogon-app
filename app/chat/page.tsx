@@ -226,7 +226,7 @@ export default function ChatPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="무슨 일이 있었는지 편하게 얘기해주세요..."
-              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all"
               rows={2}
               disabled={isLoading}
             />

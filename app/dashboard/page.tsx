@@ -99,7 +99,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => router.push('/profile')}
-                className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium shadow-md"
+                className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium shadow-md"
               >
                 프로필
               </button>
