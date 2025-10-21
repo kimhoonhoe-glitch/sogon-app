@@ -13,6 +13,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
+      alert('로그인이 필요한 페이지입니다.')
       router.push('/')
       return
     }
@@ -20,7 +21,7 @@ export default function ProfilePage() {
     if (status === 'authenticated') {
       fetchSubscription()
     }
-  }, [status])
+  }, [status, router])
 
   const fetchSubscription = async () => {
     try {

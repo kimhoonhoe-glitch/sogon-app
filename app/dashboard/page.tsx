@@ -34,6 +34,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
+      alert('로그인이 필요한 페이지입니다.')
       router.push('/')
       return
     }
@@ -41,7 +42,7 @@ export default function DashboardPage() {
     if (status === 'authenticated') {
       fetchEmotions()
     }
-  }, [status, period])
+  }, [status, period, router])
 
   const fetchEmotions = async () => {
     try {
