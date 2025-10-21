@@ -66,21 +66,26 @@ interface ChatMessage {
 
 function sanitizeMessage(message: string): string {
   const sensitivePatterns = [
-    { pattern: /루저|찌질|패배자|실패자|낙오자/gi, replacement: '어려움을 겪는 사람' },
-    { pattern: /쓰레기|똥|개같|병신|바보|멍청|한심/gi, replacement: '힘든 상황' },
-    { pattern: /죽고\s*싶|죽어|자살|목숨|생을\s*마감|사라지고\s*싶|끝내고\s*싶/gi, replacement: '극도로 힘들' },
-    { pattern: /미치겠|미친|돌겠|돌아버리겠/gi, replacement: '매우 스트레스받' },
-    { pattern: /좆|씨발|개새|시발|ㅅㅂ|ㅆㅂ|fuck|shit/gi, replacement: '정말' },
-    { pattern: /망했|망한|망할|끝났|끝난/gi, replacement: '어려운' },
-    { pattern: /혐오|역겨|징그|더럽/gi, replacement: '불편한' },
-    { pattern: /최악|지옥|헬/gi, replacement: '매우 힘든 상황' },
-    { pattern: /죽을\s*것\s*같|죽을만큼|죽도록/gi, replacement: '극심하게' },
+    { pattern: /루저|찌질|패배자|실패자|낙오자/gi, replacement: '힘든 시기를 보내는 사람' },
+    { pattern: /쓰레기|똥|개같|병신|바보|멍청|한심|쓰레기같|개꼴|개판|ㅄ/gi, replacement: '힘든 상황' },
+    { pattern: /죽고\s*싶|죽어|자살|목숨|생을\s*마감|사라지고\s*싶|끝내고\s*싶|뛰어내리|떨어지고\s*싶|목\s*매|손목|자해/gi, replacement: '극도로 힘들고 지친' },
+    { pattern: /미치겠|미친|돌겠|돌아버리겠|미쳐|돌아|정신|제정신/gi, replacement: '매우 스트레스받' },
+    { pattern: /좆|씨발|개새|시발|ㅅㅂ|ㅆㅂ|fuck|shit|좇|시팔|씹|ㅈ같|ㅈ밥/gi, replacement: '정말' },
+    { pattern: /망했|망한|망할|끝났|끝난|망가진|다\s*끝|엿같|좆같/gi, replacement: '어려운' },
+    { pattern: /혐오|역겨|징그|더럽|토할|구역질/gi, replacement: '불편한' },
+    { pattern: /최악|지옥|헬|존나|좆나|개|ㅈㄴ|졸라|ㅈㄹ/gi, replacement: '매우' },
+    { pattern: /죽을\s*것\s*같|죽을만큼|죽도록|죽겠/gi, replacement: '극심하게' },
+    { pattern: /짜증|빡|열받|화나|분노|빡치|열불|ㅡㅡ/gi, replacement: '화가 나' },
+    { pattern: /걱정|불안|두려|무서|겁나|겁먹/gi, replacement: '걱정되' },
   ]
   
   let sanitized = message
   for (const { pattern, replacement } of sensitivePatterns) {
     sanitized = sanitized.replace(pattern, replacement)
   }
+  
+  console.log('Original message:', message)
+  console.log('Sanitized message:', sanitized)
   
   return sanitized
 }
