@@ -9,4 +9,4 @@ export const stripe = stripeKey
   : null
 
 export const PREMIUM_PRICE = 5000
-export const FREE_DAILY_LIMIT = 3
+export const FREE_DAILY_LIMIT = 999999 // 사실상 무제한
