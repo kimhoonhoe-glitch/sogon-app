@@ -1,14 +1,13 @@
 import OpenAI from 'openai'
 import { EMOTION_CATEGORIES, WORKPLACE_CATEGORIES } from './emotions'
 
-const apiKey = process.env.OPENAI_API_KEY || process.env.AI_INTEGRATIONS_OPENAI_API_KEY
-
-if (!apiKey && typeof window === 'undefined') {
-  console.warn('⚠️ OpenAI API key is not set. AI features will not work.')
+if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY && typeof window === 'undefined') {
+  console.warn('⚠️ OpenAI AI Integrations is not set. AI features will not work.')
 }
 
 export const openai = new OpenAI({
-  apiKey: apiKey || 'dummy-key',
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY || 'dummy-key',
 })
 
 export { EMOTION_CATEGORIES, WORKPLACE_CATEGORIES }
