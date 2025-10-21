@@ -10,6 +10,11 @@ export default function WelcomePage() {
   const [phaseTime, setPhaseTime] = useState(3)
   const [cycleCount, setCycleCount] = useState(0)
   const [fadeOut, setFadeOut] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (!showBreathing) return
@@ -77,19 +82,21 @@ export default function WelcomePage() {
   return (
     <div className={`min-h-screen relative overflow-hidden transition-opacity duration-1000 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
       <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary/20 to-accent/10 dark:from-primary/20 dark:via-gray-800/50 dark:to-gray-900">
-        <div className="particles-container absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 20}s`,
-                animationDuration: `${20 + Math.random() * 10}s`,
-              }}
-            />
-          ))}
-        </div>
+        {mounted && (
+          <div className="particles-container absolute inset-0">
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="particle"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 20}s`,
+                  animationDuration: `${20 + Math.random() * 10}s`,
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4">

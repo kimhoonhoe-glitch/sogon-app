@@ -57,3 +57,11 @@ Prisma schema: \`prisma/schema.prisma\`
 - 스크롤 애니메이션 (fadeIn, slideInLeft, slideInRight, slideInUp)
 - 감정 색상 통일 (lib/emotions.ts로 분리)
 - OPENAI_API_KEY 없을 때 에러 방지 (dummy-key fallback)
+
+### Welcome 화면 추가 (2024-10-21)
+- 첫 실행 시 환영 화면 (/welcome)
+- 라벤더 → 베이지 그라데이션 배경
+- 부드러운 입자 효과 애니메이션
+- 3-4-5 호흡법 가이드 (숨 들이쉬기 3초, 참기 4초, 내쉬기 5초)
+- 호흡 완료 후 자동으로 /chat 페이지 이동
+- localStorage로 첫 실행 여부 추적
