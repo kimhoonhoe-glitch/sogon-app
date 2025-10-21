@@ -62,10 +62,25 @@ Prisma schema: \`prisma/schema.prisma\`
 - 감정 색상 통일 (lib/emotions.ts로 분리)
 - OPENAI_API_KEY 없을 때 에러 방지 (dummy-key fallback)
 
-### Welcome 화면 추가 (2024-10-21)
+### Welcome 화면 개선 (2024-10-21)
 - 첫 실행 시 환영 화면 (/welcome)
 - 라벤더 → 베이지 그라데이션 배경
-- 부드러운 입자 효과 애니메이션
-- 3-4-5 호흡법 가이드 (숨 들이쉬기 3초, 참기 4초, 내쉬기 5초)
-- 호흡 완료 후 자동으로 /chat 페이지 이동
+- 부드러운 입자 효과 애니메이션 (20개)
+- 3-4-5 호흡법 **선택 기능**:
+  * "호흡하고 시작하기" - 3-4-5 호흡법 3회 진행
+  * "바로 시작하기" - 호흡 건너뛰고 바로 대화 시작
+  * 호흡법 효과 설명 추가 (스트레스 완화, 마음 안정, 집중력 향상)
+  * 호흡 중 "건너뛰기" 버튼 추가
 - localStorage로 첫 실행 여부 추적
+
+### AI 프롬프트 대폭 개선 (2024-10-21)
+- 기존 "짧고 간결한 답변" → "깊이 있는 공감과 위로" 중심으로 전환
+- 진짜 친구/연인이 위로해주는 느낌의 대화 톤
+- 감정 인정 → 위로 → 조언 순서로 구조화
+- Temperature 1.0, Max tokens 600으로 증가 (더 풍부한 응답)
+- Azure OpenAI 콘텐츠 필터 호환 프롬프트
+- Replit AI Integrations 연결 (API 키 불필요)
+
+### 환경 변수 업데이트
+- AI_INTEGRATIONS_OPENAI_API_KEY: Replit AI 통합 (자동 설정)
+- AI_INTEGRATIONS_OPENAI_BASE_URL: Replit AI 엔드포인트 (자동 설정)
