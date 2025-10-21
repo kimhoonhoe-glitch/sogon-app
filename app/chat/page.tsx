@@ -139,7 +139,7 @@ export default function ChatPage() {
     }
   }
 
-  const handleSpeak = (index: number, text: string) => {
+  const handleSpeak = async (index: number, text: string) => {
     if (speakingIndex === index && isSpeaking()) {
       // 이미 재생 중이면 중지
       stopSpeech()
@@ -148,14 +148,14 @@ export default function ChatPage() {
       // 새로 재생
       stopSpeech()
       setSpeakingIndex(index)
-      speakText(text, selectedPersona?.id)
       
-      // 재생 완료 후 상태 업데이트
-      setTimeout(() => {
-        if (!isSpeaking()) {
-          setSpeakingIndex(null)
-        }
-      }, 100)
+      try {
+        await speakText(text, selectedPersona?.id)
+        setSpeakingIndex(null)
+      } catch (error) {
+        console.error('Speech failed:', error)
+        setSpeakingIndex(null)
+      }
     }
   }
 
