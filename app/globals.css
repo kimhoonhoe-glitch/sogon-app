@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #B4A7D6;
+    --color-secondary: #F5E6D3;
+    --color-accent: #A8E6CF;
+    --color-background: #FFFEF7;
+    --color-text: #2D3436;
+  }
+
+  .dark {
+    --color-background: #1a1a1a;
+    --color-text: #f5f5f5;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-text;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .animate-typing {
+    animation: typing 0.3s steps(20) forwards;
+  }
+
+  @keyframes typing {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
