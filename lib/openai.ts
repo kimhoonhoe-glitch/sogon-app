@@ -64,6 +64,22 @@ interface ChatMessage {
   content: string
 }
 
+function sanitizeMessage(message: string): string {
+  const sensitivePatterns = [
+    { pattern: /루저/gi, replacement: '부족하다고 느끼는 사람' },
+    { pattern: /쓰레기/gi, replacement: '가치 없다고 느끼는 사람' },
+    { pattern: /죽고\s*싶/gi, replacement: '매우 힘들' },
+    { pattern: /자살/gi, replacement: '극심한 고통' },
+  ]
+  
+  let sanitized = message
+  for (const { pattern, replacement } of sensitivePatterns) {
+    sanitized = sanitized.replace(pattern, replacement)
+  }
+  
+  return sanitized
+}
+
 export async function generateEmpathyResponse(
   userMessage: string,
   category?: string,
@@ -72,6 +88,8 @@ export async function generateEmpathyResponse(
   if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY && !process.env.OPENAI_API_KEY) {
     throw new Error('OpenAI API key가 설정되지 않았습니다. 환경 변수를 확인해주세요.')
   }
+  
+  const sanitizedMessage = sanitizeMessage(userMessage)
 
   const systemPrompt = `당신은 공감과 위로를 제공하는 따뜻한 대화 상담사입니다.
 
@@ -120,11 +138,14 @@ ${category ? `\n대화 맥락: ${WORKPLACE_CATEGORIES[category as keyof typeof W
   ]
 
   if (conversationHistory && conversationHistory.length > 0) {
-    const recentHistory = conversationHistory.slice(-5)
+    const recentHistory = conversationHistory.slice(-5).map(msg => ({
+      role: msg.role,
+      content: msg.role === 'user' ? sanitizeMessage(msg.content) : msg.content
+    }))
     messages.push(...recentHistory)
   }
 
-  messages.push({ role: 'user', content: userMessage })
+  messages.push({ role: 'user', content: sanitizedMessage })
 
   const stream = await openai.chat.completions.create(
     {
