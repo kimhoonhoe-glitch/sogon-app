@@ -172,7 +172,7 @@ export default function WelcomePage() {
           </div>
         ) : (
           <div className="text-center animate-fadeIn">
-            <div className="mb-8">
+            <div className="mb-6">
               <div className="relative w-64 h-64 mx-auto">
                 <div
                   className="absolute inset-0 rounded-full border-8 border-primary/30 flex items-center justify-center transition-all duration-1000 ease-in-out"
@@ -192,15 +192,23 @@ export default function WelcomePage() {
               </div>
             </div>
             
-            <h2 className="text-3xl sm:text-4xl font-bold text-text dark:text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-text dark:text-white mb-3">
               {getPhaseText()}
             </h2>
             
-            <p className="text-lg text-text/60 dark:text-white/60">
+            <p className="text-lg text-text/60 dark:text-white/60 mb-6">
               {breathingPhase === 'inhale' && '코로 천천히 들이마셔요'}
               {breathingPhase === 'hold' && '잠시 숨을 참아요'}
               {breathingPhase === 'exhale' && '입으로 천천히 내쉬어요'}
             </p>
+
+            <div className="max-w-sm mx-auto bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm rounded-2xl p-4 mb-6">
+              <p className="text-sm text-text/70 dark:text-white/70 leading-relaxed">
+                ✨ 긴장된 신경을 진정시키고<br/>
+                💭 복잡한 생각을 정리하며<br/>
+                🎯 지금 이 순간에 집중하게 돼요
+              </p>
+            </div>
 
             <div className="mt-8 flex gap-2 justify-center">
               {[0, 1, 2].map((i) => (
