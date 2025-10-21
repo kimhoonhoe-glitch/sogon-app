@@ -117,13 +117,34 @@ export default function WelcomePage() {
             
             <div className="max-w-md mx-auto mb-12 px-4">
               <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 mb-8">
-                <div className="flex items-start gap-3 text-left">
+                <div className="flex items-start gap-3 text-left mb-4">
                   <span className="text-2xl mt-1">🫁</span>
                   <div>
                     <h3 className="font-semibold text-text dark:text-white mb-2">3-4-5 호흡법</h3>
-                    <p className="text-sm text-text/70 dark:text-white/70 leading-relaxed">
-                      긴장을 풀고 마음을 가다듬는 시간이에요. 
-                      스트레스를 받았다면 천천히 호흡하며 시작해보세요.
+                    <p className="text-sm text-text/70 dark:text-white/70 leading-relaxed mb-3">
+                      3초 들이쉬고, 4초 참고, 5초 내쉬는 리듬으로
+                      마음을 편안하게 만들어요.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2 text-left">
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm">✨</span>
+                    <p className="text-xs text-text/60 dark:text-white/60">
+                      <strong>스트레스 완화:</strong> 긴장된 신경을 진정시켜요
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm">💭</span>
+                    <p className="text-xs text-text/60 dark:text-white/60">
+                      <strong>마음 안정:</strong> 복잡한 생각을 정리할 수 있어요
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm">🎯</span>
+                    <p className="text-xs text-text/60 dark:text-white/60">
+                      <strong>집중력 향상:</strong> 지금 이 순간에 집중하게 돼요
                     </p>
                   </div>
                 </div>
