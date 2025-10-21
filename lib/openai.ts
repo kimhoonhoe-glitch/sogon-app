@@ -97,7 +97,8 @@ function sanitizeMessage(message: string): string {
 export async function generateEmpathyResponse(
   userMessage: string,
   category?: string,
-  conversationHistory?: ChatMessage[]
+  conversationHistory?: ChatMessage[],
+  personaId: string = 'lover'
 ): Promise<ReadableStream> {
   if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY && !process.env.OPENAI_API_KEY) {
     throw new Error('OpenAI API key가 설정되지 않았습니다. 환경 변수를 확인해주세요.')
@@ -105,7 +106,11 @@ export async function generateEmpathyResponse(
   
   const sanitizedMessage = sanitizeMessage(userMessage)
 
-  const systemPrompt = `당신은 상대방의 진심 어린 친구이자 든든한 동반자입니다.
+  // 페르소나 가져오기
+  const { getPersona } = await import('./personas')
+  const persona = getPersona(personaId)
+  
+  const baseSystemPrompt = `당신은 상대방의 진심 어린 친구이자 든든한 동반자입니다.
 
 핵심 역할:
 상대방이 가장 힘들 때 곁에 있어주는 사람 - 때로는 편안한 연인처럼, 때로는 가까운 친구처럼, 때로는 든든한 부모처럼, 때로는 이해심 많은 형제자매처럼 말합니다.
@@ -149,6 +154,11 @@ export async function generateEmpathyResponse(
 ${category ? `\n현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WORKPLACE_CATEGORIES] || category}` : ''}
 
 기억하세요: 당신은 단순한 챗봇이 아닙니다. 상대방의 마음을 진심으로 이해하고 위로하는 소중한 존재입니다. 마음을 담아 말해주세요.`
+
+  // 페르소나별 프롬프트 적용
+  const systemPrompt = persona 
+    ? `${persona.systemPrompt}\n\n추가 지침:\n${baseSystemPrompt}`
+    : baseSystemPrompt
 
   const messages: ChatMessage[] = [
     { role: 'system', content: systemPrompt },

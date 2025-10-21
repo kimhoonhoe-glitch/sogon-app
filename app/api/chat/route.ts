@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     const session = await getServerSession(authOptions)
-    const { message, category, conversationHistory } = await req.json()
+    const { message, category, conversationHistory, personaId } = await req.json()
 
     if (!message) {
       return new Response(JSON.stringify({ error: 'Message required' }), {
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     const history = (conversationHistory as ChatMessage[] || []).slice(-5)
     
-    const stream = await generateEmpathyResponse(message, category, history)
+    const stream = await generateEmpathyResponse(message, category, history, personaId || 'lover')
     const emotion = await analyzeEmotion(message)
 
     if (!isAnonymous && session?.user?.id) {

@@ -7,7 +7,10 @@ import BreathingGuide from '@/components/BreathingGuide'
 import LoadingMessage from '@/components/LoadingMessage'
 import CrisisAlert from '@/components/CrisisAlert'
 import ThemeToggle from '@/components/ThemeToggle'
-import { EMOTION_CATEGORIES, WORKPLACE_CATEGORIES } from '@/lib/emotions'
+import PersonaSelector from '@/components/PersonaSelector'
+import { EMOTION_CATEGORIES } from '@/lib/emotions'
+import { Persona } from '@/lib/personas'
+import { speakText, stopSpeech, isSpeaking, isSpeechSupported } from '@/lib/speech'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -28,6 +31,8 @@ export default function ChatPage() {
   const [category, setCategory] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [showCrisis, setShowCrisis] = useState(false)
+  const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
+  const [speakingIndex, setSpeakingIndex] = useState<number | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -55,6 +60,7 @@ export default function ChatPage() {
           message: userMessage,
           category,
           conversationHistory,
+          personaId: selectedPersona?.id || 'lover',
         }),
       })
 
@@ -133,6 +139,26 @@ export default function ChatPage() {
     }
   }
 
+  const handleSpeak = (index: number, text: string) => {
+    if (speakingIndex === index && isSpeaking()) {
+      // 이미 재생 중이면 중지
+      stopSpeech()
+      setSpeakingIndex(null)
+    } else {
+      // 새로 재생
+      stopSpeech()
+      setSpeakingIndex(index)
+      speakText(text, selectedPersona?.id)
+      
+      // 재생 완료 후 상태 업데이트
+      setTimeout(() => {
+        if (!isSpeaking()) {
+          setSpeakingIndex(null)
+        }
+      }, 100)
+    }
+  }
+
   if (showBreathing) {
     return <BreathingGuide onComplete={() => setShowBreathing(false)} />
   }
@@ -141,7 +167,14 @@ export default function ChatPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex flex-col">
       <header className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
+          <button 
+            onClick={() => {
+              if (confirm('초기 화면으로 이동합니다')) {
+                router.push('/')
+              }
+            }}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <span className="text-2xl">💙</span>
             <div>
               <h1 className="text-xl font-bold text-text dark:text-white">소곤 SOGON</h1>
@@ -149,8 +182,12 @@ export default function ChatPage() {
                 {isAnonymous ? '익명 체험' : session?.user?.name || '게스트'}
               </p>
             </div>
-          </div>
+          </button>
           <div className="flex gap-2">
+            <PersonaSelector 
+              onSelect={setSelectedPersona}
+              initialPersona={selectedPersona?.id}
+            />
             <button
               onClick={() => router.push('/dashboard')}
               className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
@@ -167,23 +204,11 @@ export default function ChatPage() {
           {messages.length === 0 && (
             <div className="text-center py-12">
               <h2 className="text-2xl font-semibold text-text dark:text-white mb-4">
-                오늘 직장에서 어떤 일이 있었나요?
+                오늘은 어떤 일이 있었나요?
               </h2>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {Object.entries(WORKPLACE_CATEGORIES).map(([key, label]) => (
-                  <button
-                    key={key}
-                    onClick={() => setCategory(key)}
-                    className={`px-4 py-2 rounded-xl transition-all ${
-                      category === key
-                        ? 'bg-primary text-white'
-                        : 'bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+              <p className="text-text/60 dark:text-white/60 text-sm">
+                편하게 이야기해주세요. 제가 들어줄게요 💙
+              </p>
             </div>
           )}
 
@@ -194,20 +219,33 @@ export default function ChatPage() {
               key={index}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div
-                className={`max-w-[80%] p-4 rounded-2xl ${
-                  message.role === 'user'
-                    ? 'bg-primary text-white'
-                    : 'bg-white dark:bg-gray-800 text-text dark:text-white'
-                }`}
-              >
-                {message.role === 'assistant' && message.emotion && (
-                  <div className="flex items-center gap-2 mb-2 text-sm opacity-70">
-                    <span>{EMOTION_CATEGORIES[message.emotion as keyof typeof EMOTION_CATEGORIES]?.emoji}</span>
-                    <span>{EMOTION_CATEGORIES[message.emotion as keyof typeof EMOTION_CATEGORIES]?.label}</span>
-                  </div>
+              <div className="flex items-start gap-2">
+                <div
+                  className={`max-w-[80%] p-4 rounded-2xl ${
+                    message.role === 'user'
+                      ? 'bg-primary text-white'
+                      : 'bg-white dark:bg-gray-800 text-text dark:text-white'
+                  }`}
+                >
+                  {message.role === 'assistant' && message.emotion && (
+                    <div className="flex items-center gap-2 mb-2 text-sm opacity-70">
+                      <span>{EMOTION_CATEGORIES[message.emotion as keyof typeof EMOTION_CATEGORIES]?.emoji}</span>
+                      <span>{EMOTION_CATEGORIES[message.emotion as keyof typeof EMOTION_CATEGORIES]?.label}</span>
+                    </div>
+                  )}
+                  <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                </div>
+                
+                {/* TTS 버튼 (AI 응답에만 표시) */}
+                {message.role === 'assistant' && isSpeechSupported() && (
+                  <button
+                    onClick={() => handleSpeak(index, message.content)}
+                    className="flex-shrink-0 w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center text-lg"
+                    title={speakingIndex === index ? "음성 중지" : "음성으로 듣기"}
+                  >
+                    {speakingIndex === index ? '⏸️' : '🔊'}
+                  </button>
                 )}
-                <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
               </div>
             </div>
           ))}
