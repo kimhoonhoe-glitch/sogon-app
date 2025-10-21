@@ -48,29 +48,37 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10">
       <header className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
-        <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.push('/chat')} className="text-2xl">💙</button>
-            <h1 className="text-xl font-bold text-text dark:text-white">프로필</h1>
+        <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button 
+              onClick={() => router.push('/welcome')} 
+              className="text-2xl hover:opacity-80 transition-opacity"
+            >
+              💙
+            </button>
+            <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white">프로필</h1>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
             <button
               onClick={() => router.push('/chat')}
-              className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
+              className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-1"
             >
-              💬 대화
+              <span>💬</span>
+              <span className="hidden sm:inline">대화</span>
             </button>
             <button
               onClick={() => router.push('/dashboard')}
-              className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
+              className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-1"
             >
-              📊 대시보드
+              <span>📊</span>
+              <span className="hidden sm:inline">대시보드</span>
             </button>
             <button
               onClick={() => router.push('/premium')}
-              className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
+              className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-1"
             >
-              ⭐ 프리미엄
+              <span>⭐</span>
+              <span className="hidden sm:inline">프리미엄</span>
             </button>
             <ThemeToggle />
           </div>

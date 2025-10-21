@@ -73,35 +73,37 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900">
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
+          <div className="flex justify-between items-center gap-4">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <button 
-                onClick={() => router.push('/chat')} 
-                className="text-3xl hover:scale-110 transition-transform duration-300"
+                onClick={() => router.push('/welcome')} 
+                className="text-2xl hover:opacity-80 transition-opacity"
               >
                 💙
               </button>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-text dark:text-white">
+                <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white leading-tight">
                   감정 트래커
                 </h1>
-                <p className="text-xs sm:text-sm text-text/60 dark:text-white/60">
+                <p className="text-xs text-text/60 dark:text-white/60 leading-tight">
                   {session?.user?.name || session?.user?.email || '익명'}님의 감정 기록
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               <button
                 onClick={() => router.push('/chat')}
-                className="px-3 sm:px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white transition-all text-sm font-medium shadow-md hover:shadow-lg"
+                className="px-3 sm:px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white transition-all text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-1 shadow-md hover:shadow-lg"
               >
-                💬 대화
+                <span>💬</span>
+                <span className="hidden sm:inline">대화</span>
               </button>
               <button
                 onClick={() => router.push('/profile')}
-                className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium shadow-md"
+                className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-1 shadow-md"
               >
-                프로필
+                <span>👤</span>
+                <span className="hidden sm:inline">프로필</span>
               </button>
               <ThemeToggle />
             </div>

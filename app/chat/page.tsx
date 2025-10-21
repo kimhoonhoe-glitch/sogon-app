@@ -166,31 +166,31 @@ export default function ChatPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex flex-col">
       <header className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
-        <div className="max-w-4xl mx-auto flex justify-between items-center">
+        <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
           <button 
             onClick={() => {
-              if (confirm('초기 화면으로 이동합니다')) {
-                router.push('/')
+              if (confirm('초기 화면으로 이동하시겠습니까?')) {
+                router.push('/welcome')
               }
             }}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
           >
             <span className="text-2xl">💙</span>
             <div>
-              <h1 className="text-xl font-bold text-text dark:text-white">소곤 SOGON</h1>
-              <p className="text-xs text-text/60 dark:text-white/60">
+              <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white leading-tight">소곤 SOGON</h1>
+              <p className="text-xs text-text/60 dark:text-white/60 leading-tight">
                 {isAnonymous ? '익명 체험' : session?.user?.name || '게스트'}
               </p>
             </div>
           </button>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
             <PersonaSelector 
               onSelect={setSelectedPersona}
               initialPersona={selectedPersona?.id}
             />
             <button
               onClick={() => router.push('/dashboard')}
-              className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
+              className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
             >
               대시보드
             </button>
