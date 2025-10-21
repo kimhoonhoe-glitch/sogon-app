@@ -1,0 +1,225 @@
+'use client'
+
+import { useSession } from 'next-auth/react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useState, useEffect, useRef } from 'react'
+import BreathingGuide from '@/components/BreathingGuide'
+import LoadingMessage from '@/components/LoadingMessage'
+import CrisisAlert from '@/components/CrisisAlert'
+import ThemeToggle from '@/components/ThemeToggle'
+import { EMOTION_CATEGORIES, WORKPLACE_CATEGORIES } from '@/lib/openai'
+
+interface Message {
+  role: 'user' | 'assistant'
+  content: string
+  emotion?: string
+}
+
+export default function ChatPage() {
+  const { data: session } = useSession()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const isAnonymous = searchParams.get('anonymous') === 'true'
+  
+  const [showBreathing, setShowBreathing] = useState(true)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [input, setInput] = useState('')
+  const [category, setCategory] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [showCrisis, setShowCrisis] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return
+
+    const userMessage = input.trim()
+    setInput('')
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }])
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMessage,
+          category,
+          isAnonymous,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        if (response.status === 429) {
+          setMessages(prev => [...prev, {
+            role: 'assistant',
+            content: error.message || '오늘의 무료 대화 횟수를 모두 사용했어요.',
+          }])
+          setIsLoading(false)
+          return
+        }
+        throw new Error('Failed to send message')
+      }
+
+      const emotion = response.headers.get('X-Emotion')
+      const hasCrisis = response.headers.get('X-Crisis') === 'true'
+      
+      if (hasCrisis) {
+        setShowCrisis(true)
+      }
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+      let assistantMessage = ''
+
+      setMessages(prev => [...prev, { role: 'assistant', content: '', emotion: emotion || undefined }])
+
+      while (reader) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        assistantMessage += chunk
+
+        setMessages(prev => {
+          const newMessages = [...prev]
+          newMessages[newMessages.length - 1] = {
+            role: 'assistant',
+            content: assistantMessage,
+            emotion: emotion || undefined,
+          }
+          return newMessages
+        })
+      }
+    } catch (error) {
+      console.error('Chat error:', error)
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: '죄송해요, 일시적인 오류가 발생했어요. 다시 시도해주세요.',
+      }])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      sendMessage()
+    }
+  }
+
+  if (showBreathing) {
+    return <BreathingGuide onComplete={() => setShowBreathing(false)} />
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex flex-col">
+      <header className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">💙</span>
+            <div>
+              <h1 className="text-xl font-bold text-text dark:text-white">마음지기</h1>
+              <p className="text-xs text-text/60 dark:text-white/60">
+                {isAnonymous ? '익명 체험' : session?.user?.name || '게스트'}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
+            >
+              대시보드
+            </button>
+            <ThemeToggle />
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 overflow-y-auto p-4">
+        <div className="max-w-4xl mx-auto space-y-4">
+          {messages.length === 0 && (
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-semibold text-text dark:text-white mb-4">
+                오늘 직장에서 어떤 일이 있었나요?
+              </h2>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {Object.entries(WORKPLACE_CATEGORIES).map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => setCategory(key)}
+                    className={`px-4 py-2 rounded-xl transition-all ${
+                      category === key
+                        ? 'bg-primary text-white'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {showCrisis && <CrisisAlert />}
+
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[80%] p-4 rounded-2xl ${
+                  message.role === 'user'
+                    ? 'bg-primary text-white'
+                    : 'bg-white dark:bg-gray-800'
+                }`}
+              >
+                {message.role === 'assistant' && message.emotion && (
+                  <div className="flex items-center gap-2 mb-2 text-sm opacity-70">
+                    <span>{EMOTION_CATEGORIES[message.emotion as keyof typeof EMOTION_CATEGORIES]?.emoji}</span>
+                    <span>{EMOTION_CATEGORIES[message.emotion as keyof typeof EMOTION_CATEGORIES]?.label}</span>
+                  </div>
+                )}
+                <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+              </div>
+            </div>
+          ))}
+
+          {isLoading && <LoadingMessage />}
+
+          <div ref={messagesEndRef} />
+        </div>
+      </main>
+
+      <footer className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-2">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="무슨 일이 있었는지 편하게 얘기해주세요..."
+              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+              rows={2}
+              disabled={isLoading}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={isLoading || !input.trim()}
+              className="px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-semibold rounded-xl transition-all duration-500 hover:shadow-soft disabled:cursor-not-allowed"
+            >
+              전송
+            </button>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
