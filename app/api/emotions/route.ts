@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       conversations,
       summary: {
         totalConversations: conversations.length,
-        emotions: conversations.reduce((acc, conv) => {
+        emotions: conversations.reduce((acc: Record<string, number>, conv) => {
           if (conv.emotion) {
             acc[conv.emotion] = (acc[conv.emotion] || 0) + 1
           }
