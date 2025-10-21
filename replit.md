@@ -1,7 +1,9 @@
-# 마음지기 (MindKeeper) - Replit 프로젝트
+# 소곤 SOGON - Replit 프로젝트
 
 ## 프로젝트 개요
-직장인을 위한 AI 감정 코칭 앱. Next.js 14 App Router, TypeScript, Prisma, OpenAI GPT-4o-mini를 사용한 풀스택 애플리케이션.
+직장인을 위한 AI 감정 코칭 앱 "소곤 SOGON". 
+태그라인: "말해보세요. 당신 편이 조용히 듣고 있어요"
+Next.js 14 App Router, TypeScript, Prisma, OpenAI GPT-4o-mini를 사용한 풀스택 애플리케이션.
 
 ## 기술 스택
 - Frontend: Next.js 14 (App Router), React 19, TypeScript
@@ -38,7 +40,9 @@ SQLite 파일: \`prisma/dev.db\`
 Prisma schema: \`prisma/schema.prisma\`
 
 ## 최근 변경사항
-- 2024-10-21: 초기 프로젝트 생성 및 모든 핵심 기능 구현
+- 2024-10-21: 앱 이름 "소곤 SOGON"으로 리브랜딩
+- 태그라인: "말해보세요. 당신 편이 조용히 듣고 있어요"
+- 초기 프로젝트 생성 및 모든 핵심 기능 구현
 - 라벤더 컬러 시스템 디자인 적용
 - 모바일 반응형 레이아웃 구현
 - 중요 보안 수정:

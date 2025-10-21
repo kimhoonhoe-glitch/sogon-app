@@ -59,12 +59,11 @@ export default function LandingPage() {
             <span className="text-5xl">💙</span>
           </div>
           <h1 className="text-4xl font-bold text-text dark:text-white mb-4">
-            마음지기
+            소곤 SOGON
           </h1>
           <p className="text-text/70 dark:text-white/70 text-lg leading-relaxed px-4">
-            영업으로 상처받았던 제가 만든 앱입니다.<br />
-            당신도 혼자 힘들어하지 마세요.<br />
-            AI가 먼저 들어드릴게요.
+            말해보세요.<br />
+            당신 편이 조용히 듣고 있어요
           </p>
         </div>
 
