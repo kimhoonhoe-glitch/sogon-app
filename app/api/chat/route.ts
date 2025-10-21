@@ -130,6 +130,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    if (error?.code === 'content_filter' || error?.message?.includes('content management policy') || error?.message?.includes('content_filter')) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Content filtered',
+          message: '메시지 내용이 안전 정책에 의해 차단되었어요. 다른 표현으로 말씀해주시겠어요? 💙',
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
     return new Response(
       JSON.stringify({ 
         error: 'Server error',

@@ -68,6 +68,14 @@ export default function ChatPage() {
           setIsLoading(false)
           return
         }
+        if (response.status === 400 && error.error === 'Content filtered') {
+          setMessages(prev => [...prev, {
+            role: 'assistant',
+            content: error.message || '메시지 내용이 안전 정책에 의해 차단되었어요. 다른 표현으로 말씀해주시겠어요? 💙',
+          }])
+          setIsLoading(false)
+          return
+        }
         throw new Error('Failed to send message')
       }
 
