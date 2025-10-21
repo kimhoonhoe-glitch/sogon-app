@@ -66,10 +66,15 @@ interface ChatMessage {
 
 function sanitizeMessage(message: string): string {
   const sensitivePatterns = [
-    { pattern: /루저/gi, replacement: '부족하다고 느끼는 사람' },
-    { pattern: /쓰레기/gi, replacement: '가치 없다고 느끼는 사람' },
-    { pattern: /죽고\s*싶/gi, replacement: '매우 힘들' },
-    { pattern: /자살/gi, replacement: '극심한 고통' },
+    { pattern: /루저|찌질|패배자|실패자|낙오자/gi, replacement: '어려움을 겪는 사람' },
+    { pattern: /쓰레기|똥|개같|병신|바보|멍청|한심/gi, replacement: '힘든 상황' },
+    { pattern: /죽고\s*싶|죽어|자살|목숨|생을\s*마감|사라지고\s*싶|끝내고\s*싶/gi, replacement: '극도로 힘들' },
+    { pattern: /미치겠|미친|돌겠|돌아버리겠/gi, replacement: '매우 스트레스받' },
+    { pattern: /좆|씨발|개새|시발|ㅅㅂ|ㅆㅂ|fuck|shit/gi, replacement: '정말' },
+    { pattern: /망했|망한|망할|끝났|끝난/gi, replacement: '어려운' },
+    { pattern: /혐오|역겨|징그|더럽/gi, replacement: '불편한' },
+    { pattern: /최악|지옥|헬/gi, replacement: '매우 힘든 상황' },
+    { pattern: /죽을\s*것\s*같|죽을만큼|죽도록/gi, replacement: '극심하게' },
   ]
   
   let sanitized = message
