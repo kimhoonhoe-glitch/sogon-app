@@ -18,6 +18,13 @@ export default function LandingPage() {
   const { register, handleSubmit } = useForm<LoginForm>()
 
   useEffect(() => {
+    const welcomeCompleted = localStorage.getItem('welcome_completed')
+    if (!welcomeCompleted) {
+      router.push('/welcome')
+    }
+  }, [router])
+
+  useEffect(() => {
     if (status === 'authenticated' && !isAnonymous) {
       router.push('/chat')
     }
