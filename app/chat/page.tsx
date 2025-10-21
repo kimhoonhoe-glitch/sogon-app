@@ -10,6 +10,7 @@ import ThemeToggle from '@/components/ThemeToggle'
 import PersonaSelector from '@/components/PersonaSelector'
 import { EMOTION_CATEGORIES } from '@/lib/emotions'
 import { Persona } from '@/lib/personas'
+import { createRecognition, useSpeechRecognition } from '@/lib/speech-recognition'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -31,11 +32,21 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showCrisis, setShowCrisis] = useState(false)
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
+  const [isListening, setIsListening] = useState(false)
+  const [recognitionSupported, setRecognitionSupported] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const recognitionRef = useRef<any>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    const SpeechRecognition = useSpeechRecognition()
+    if (!SpeechRecognition) {
+      setRecognitionSupported(false)
+    }
+  }, [])
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return
@@ -137,6 +148,40 @@ export default function ChatPage() {
     }
   }
 
+  const toggleVoiceInput = () => {
+    if (!recognitionSupported) {
+      alert('음성 인식이 지원되지 않는 브라우저입니다. Chrome, Edge 등을 사용해주세요.')
+      return
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop()
+      setIsListening(false)
+    } else {
+      const recognition = createRecognition(
+        (transcript) => {
+          setInput(prev => prev + transcript)
+        },
+        (error) => {
+          console.error('Speech recognition error:', error)
+          setIsListening(false)
+          if (error === 'not-allowed') {
+            alert('마이크 권한이 필요합니다. 브라우저 설정에서 마이크 권한을 허용해주세요.')
+          }
+        },
+        () => {
+          setIsListening(false)
+        }
+      )
+
+      if (recognition) {
+        recognitionRef.current = recognition
+        recognition.start()
+        setIsListening(true)
+      }
+    }
+  }
+
 
   if (showBreathing) {
     return <BreathingGuide onComplete={() => setShowBreathing(false)} />
@@ -221,15 +266,31 @@ export default function ChatPage() {
       <footer className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 p-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex gap-2">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="무슨 일이 있었는지 편하게 얘기해주세요..."
-              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-              rows={2}
-              disabled={isLoading}
-            />
+            <div className="flex-1 relative">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="무슨 일이 있었는지 편하게 얘기해주세요..."
+                className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                rows={2}
+                disabled={isLoading}
+              />
+              {recognitionSupported && (
+                <button
+                  onClick={toggleVoiceInput}
+                  disabled={isLoading}
+                  className={`absolute right-3 top-3 p-2 rounded-lg transition-all ${
+                    isListening 
+                      ? 'bg-red-500 text-white animate-pulse' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  title={isListening ? '녹음 중지' : '음성 입력'}
+                >
+                  {isListening ? '⏸️' : '🎤'}
+                </button>
+              )}
+            </div>
             <button
               onClick={sendMessage}
               disabled={isLoading || !input.trim()}
