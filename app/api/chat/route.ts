@@ -5,10 +5,25 @@ import { prisma } from '@/lib/prisma'
 import { generateEmpathyResponse, analyzeEmotion, detectCrisis } from '@/lib/openai'
 import { FREE_DAILY_LIMIT } from '@/lib/stripe'
 
+interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 export async function POST(req: NextRequest) {
   try {
+    if (!process.env.OPENAI_API_KEY) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'API key missing',
+          message: 'OpenAI API 키가 설정되지 않았습니다. 관리자에게 문의해주세요.',
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
     const session = await getServerSession(authOptions)
-    const { message, category } = await req.json()
+    const { message, category, conversationHistory } = await req.json()
 
     if (!message) {
       return new Response(JSON.stringify({ error: 'Message required' }), {
@@ -59,7 +74,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const stream = await generateEmpathyResponse(message, category)
+    const history = (conversationHistory as ChatMessage[] || []).slice(-5)
+    
+    const stream = await generateEmpathyResponse(message, category, history)
     const emotion = await analyzeEmotion(message)
 
     if (!isAnonymous && session?.user?.id) {
@@ -90,10 +107,34 @@ export async function POST(req: NextRequest) {
         'X-Crisis': hasCrisis.toString(),
       },
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Chat error:', error)
+    
+    if (error?.message?.includes('API key')) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'API key missing',
+          message: 'OpenAI API 키가 설정되지 않았습니다.',
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (error?.code === 'ETIMEDOUT' || error?.message?.includes('timeout')) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Timeout',
+          message: '응답 시간이 초과되었어요. 다시 시도해주세요.',
+        }),
+        { status: 504, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+
     return new Response(
-      JSON.stringify({ error: 'Failed to process message' }),
+      JSON.stringify({ 
+        error: 'Server error',
+        message: '일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요.',
+      }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }

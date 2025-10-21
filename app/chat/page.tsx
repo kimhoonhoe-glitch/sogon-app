@@ -42,13 +42,18 @@ export default function ChatPage() {
     setIsLoading(true)
 
     try {
+      const conversationHistory = messages.slice(-5).map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      }))
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage,
           category,
-          isAnonymous,
+          conversationHistory,
         }),
       })
 
@@ -99,8 +104,14 @@ export default function ChatPage() {
       console.error('Chat error:', error)
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: '죄송해요, 일시적인 오류가 발생했어요. 다시 시도해주세요.',
+        content: '죄송해요, 일시적인 오류가 발생했어요. 네트워크 연결을 확인하고 다시 시도해주세요. 💙',
       }])
+      
+      setTimeout(() => {
+        if (!isLoading) {
+          console.log('재시도 준비 완료')
+        }
+      }, 3000)
     } finally {
       setIsLoading(false)
     }

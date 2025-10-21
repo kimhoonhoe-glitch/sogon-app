@@ -65,41 +65,89 @@ export async function analyzeEmotion(message: string): Promise<keyof typeof EMOT
   }
 }
 
+interface ChatMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
 export async function generateEmpathyResponse(
   userMessage: string,
-  category?: string
+  category?: string,
+  conversationHistory?: ChatMessage[]
 ): Promise<ReadableStream> {
-  const systemPrompt = `당신은 "마음지기"라는 이름의 따뜻하고 공감적인 감정 상담 AI입니다.
-특히 직장인의 감정을 잘 이해하고 위로해주는 역할을 합니다.
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY가 설정되지 않았습니다. 환경 변수를 확인해주세요.')
+  }
 
-응답 규칙:
-1. 반말로 친근하게 대화하세요 (예: "힘들었구나", "그런 일이 있었어?")
-2. 먼저 감정을 공감하고 인정해주세요
-3. 구체적인 조언보다는 경청과 위로를 우선하세요
-4. 2-3문장으로 간결하게 답변하세요
-5. 이모지는 사용하지 마세요
-${category ? `\n사용자의 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WORKPLACE_CATEGORIES] || category}` : ''}`
+  const systemPrompt = `당신은 '마음지기' AI 상담사입니다.
 
-  const stream = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userMessage },
-    ],
-    stream: true,
-    temperature: 0.8,
-    max_tokens: 300,
-  })
+역할:
+- 직장 생활 10년 차 따뜻한 선배
+- 영업/사무직 스트레스를 깊이 이해
+- 공감하고 경청하는 태도
+- 현실적이고 실천 가능한 조언
+
+말투:
+- 반말 사용 (친근하게)
+- 2~4문장으로 간결하게
+- 이모지 적절히 사용 💙
+- 예: '정말 힘들었겠다. 그럴 수 있어. 오늘은 일찍 퇴근해서 좋아하는 거 하는 게 어때?'
+
+금지사항:
+- '회사 그만둬' 같은 극단적 조언
+- 의료적 진단 ('우울증이에요' 등)
+- 너무 긴 답변 (5문장 이상)
+- 차갑거나 기계적인 말투
+
+특별 규칙:
+- 사용자가 '죽고 싶어', '자살' 등 언급 시:
+  '지금 정말 힘든 상황이구나. 혼자 감당하기 어려워 보여.
+   전문가와 꼭 상담해줘.
+   📞 자살예방상담 1393 (24시간)
+   지금 바로 전화해도 괜찮아. 나는 여기 있을게.'
+  
+- 감정 분류: 모든 답변 끝에 감정 태그 추가
+  [EMOTION: joy|sadness|anger|anxiety|stress]
+
+${category ? `사용자의 현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WORKPLACE_CATEGORIES] || category}` : ''}`
+
+  const messages: ChatMessage[] = [
+    { role: 'system', content: systemPrompt },
+  ]
+
+  if (conversationHistory && conversationHistory.length > 0) {
+    const recentHistory = conversationHistory.slice(-5)
+    messages.push(...recentHistory)
+  }
+
+  messages.push({ role: 'user', content: userMessage })
+
+  const stream = await openai.chat.completions.create(
+    {
+      model: 'gpt-4o-mini',
+      messages,
+      stream: true,
+      temperature: 0.8,
+      max_tokens: 300,
+    },
+    {
+      timeout: 30000,
+    }
+  )
 
   return new ReadableStream({
     async start(controller) {
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || ''
-        if (content) {
-          controller.enqueue(new TextEncoder().encode(content))
+      try {
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || ''
+          if (content) {
+            controller.enqueue(new TextEncoder().encode(content))
+          }
         }
+        controller.close()
+      } catch (error) {
+        controller.error(error)
       }
-      controller.close()
     },
   })
 }
