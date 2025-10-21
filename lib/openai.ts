@@ -62,23 +62,27 @@ interface ChatMessage {
 }
 
 function sanitizeMessage(message: string): string {
-  const sensitivePatterns = [
-    { pattern: /죽고\s*싶|죽어|자살|목숨|생을\s*마감|사라지고\s*싶|끝내고\s*싶|뛰어내리|떨어지고\s*싶|목\s*매|손목|자해|죽을\s*것\s*같|죽을만큼|죽도록|죽겠/gi, replacement: '매우 지쳐있' },
-    { pattern: /루저|찌질|패배자|실패자|낙오자/gi, replacement: '자신감이 부족한 상태' },
-    { pattern: /쓰레기|똥|개같|병신|바보|멍청|한심|쓰레기같|개꼴|개판|ㅄ/gi, replacement: '좋지 않은 상황' },
-    { pattern: /미치겠|미친|돌겠|돌아버리겠|미쳐|돌아|정신|제정신/gi, replacement: '심리적으로 힘든' },
-    { pattern: /좆|씨발|개새|시발|ㅅㅂ|ㅆㅂ|fuck|shit|좇|시팔|씹|ㅈ같|ㅈ밥/gi, replacement: '너무' },
-    { pattern: /망했|망한|망할|끝났|끝난|망가진|다\s*끝|엿같|좆같/gi, replacement: '안 좋은' },
-    { pattern: /혐오|역겨|징그|더럽|토할|구역질/gi, replacement: '불쾌한' },
-    { pattern: /최악|지옥|헬|존나|좆나|개|ㅈㄴ|졸라|ㅈㄹ/gi, replacement: '심하게' },
-    { pattern: /짜증|빡|열받|화나|분노|빡치|열불|ㅡㅡ/gi, replacement: '스트레스받' },
-    { pattern: /걱정|불안|두려|무서|겁나|겁먹/gi, replacement: '염려되' },
-  ]
-  
   let sanitized = message
-  for (const { pattern, replacement } of sensitivePatterns) {
-    sanitized = sanitized.replace(pattern, replacement)
-  }
+  
+  // 극단적 표현을 중립적으로 완전히 재구성
+  sanitized = sanitized.replace(/죽고\s*싶|자살|뛰어내리|떨어지고\s*싶|목\s*매|손목|자해/gi, '정말 힘들')
+  sanitized = sanitized.replace(/죽어|생을\s*마감|사라지고\s*싶|끝내고\s*싶/gi, '지쳐')
+  sanitized = sanitized.replace(/죽을\s*것\s*같|죽을만큼|죽도록|죽겠/gi, '굉장히')
+  
+  // 비속어와 강한 표현 순화
+  sanitized = sanitized.replace(/좆|씨발|개새|시발|ㅅㅂ|ㅆㅂ|fuck|shit|좇|시팔|씹|ㅈ같|ㅈ밥/gi, '정말')
+  sanitized = sanitized.replace(/존나|좆나|ㅈㄴ|졸라|ㅈㄹ/gi, '엄청')
+  sanitized = sanitized.replace(/개같|개꼴|개판/gi, '형편없')
+  
+  // 자기비하 표현 순화
+  sanitized = sanitized.replace(/루저|찌질|패배자|실패자|낙오자/gi, '힘든 사람')
+  sanitized = sanitized.replace(/쓰레기|똥|병신|바보|멍청|한심|ㅄ/gi, '안 좋')
+  
+  // 감정 표현 순화  
+  sanitized = sanitized.replace(/미치겠|미친|돌겠|돌아버리겠|미쳐/gi, '답답')
+  sanitized = sanitized.replace(/짜증|빡|열받|화나|분노|빡치|열불/gi, '속상')
+  sanitized = sanitized.replace(/최악|지옥|헬/gi, '힘든')
+  sanitized = sanitized.replace(/망했|망한|망할|끝났|끝난/gi, '어려운')
   
   console.log('Original message:', message)
   console.log('Sanitized message:', sanitized)
@@ -97,38 +101,27 @@ export async function generateEmpathyResponse(
   
   const sanitizedMessage = sanitizeMessage(userMessage)
 
-  const systemPrompt = `당신은 진심으로 공감해주는 친한 친구입니다.
+  const systemPrompt = `당신은 공감 능력이 뛰어난 친구입니다.
 
-역할:
-- 상대방의 감정에 강하게 공감하고 동조합니다
-- 억울하고 힘든 마음을 완전히 이해하고 같이 화내줍니다
-- 상대방의 편이 되어 함께 분노하고 속상해합니다
+대화 방식:
+- 상대방의 감정을 충분히 이해하고 공감합니다
+- 힘든 상황에 대해 진심으로 안타까워합니다  
+- 완전히 편을 들어주고 위로합니다
+- 긍정적인 면을 찾아 격려합니다
 
-대화 원칙:
+표현 스타일:
+- 친근한 반말로 편하게
+- "정말 힘들겠다", "많이 속상하겠어", "충분히 그럴 수 있어" 같은 공감
+- "나도 그랬으면 그랬을 거야", "전혀 이상한 게 아니야" 같은 인정
+- 3~5문장으로 간결하게
 
-1. 강한 공감과 동조
-- "진짜 빡치겠다", "완전 이해돼", "그럴 만하다" 같은 강한 공감 표현
-- 상대방의 감정을 100% 인정하고 같이 화내기
-- "나라도 미쳤을 것 같아", "진짜 열받네" 같은 표현 사용
+응답 예시:
+"정말 힘든 상황이네. 그런 일 겪으면 나도 엄청 속상하고 불안했을 거야. 지금 느끼는 감정 다 정상이야. 그래도 여기까지 버텨온 거 정말 대단해. 오늘은 푹 쉬면서 마음 좀 추스려봐."
 
-2. 편 들어주기  
-- 상대방이 겪은 상황에 대해 같이 분노하기
-- "진짜 너무하네", "말도 안 되는 거 아니야?" 같이 동조
-- 상대를 탓하지 않고 완전히 편 들어주기
-
-3. 위로와 격려
-- 강한 공감 후 따뜻한 위로
-- "그래도 네가 여기까지 버틴 게 대단해"
-- "오늘 하루 푹 쉬어, 너 충분히 지쳤어"
-
-말하는 방식:
-- 친한 친구처럼 편한 반말
-- 강한 공감 표현 자유롭게 사용 ("진짜", "완전", "엄청", "겁나")
-- 3~6문장
-- 진심 어린 톤
-
-좋은 응답 예시:
-"와 진짜 빡치겠다. 입찰 떨어지면 엄청 허탈하고 불안하잖아. 담달 걱정되는 거 완전 이해돼. 나라도 미칠 것 같아. 오늘은 진짜 많이 힘들었을 거야. 그래도 네가 지금까지 버텨온 거 진짜 대단한 거야. 오늘 하루는 푹 쉬면서 기분 전환 좀 해봐."
+주의사항:
+- 상대의 감정을 부정하지 않기
+- 섣부른 조언보다 공감 먼저
+- 따뜻하고 진심 어린 톤 유지
 
 ${category ? `\n상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WORKPLACE_CATEGORIES] || category}` : ''}`
 
