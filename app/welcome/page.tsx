@@ -111,16 +111,43 @@ export default function WelcomePage() {
               수고 많으셨어요
             </h1>
             
-            <p className="text-xl sm:text-2xl text-text/70 dark:text-white/70 mb-12">
-              숨 고르고 시작할까요?
+            <p className="text-xl sm:text-2xl text-text/70 dark:text-white/70 mb-4">
+              편안하게 시작할 준비되셨나요?
             </p>
             
-            <button
-              onClick={() => setShowBreathing(true)}
-              className="px-12 py-5 bg-gradient-to-r from-primary to-accent text-white text-xl font-bold rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 animate-pulse-gentle"
-            >
-              시작하기
-            </button>
+            <div className="max-w-md mx-auto mb-12 px-4">
+              <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 mb-8">
+                <div className="flex items-start gap-3 text-left">
+                  <span className="text-2xl mt-1">🫁</span>
+                  <div>
+                    <h3 className="font-semibold text-text dark:text-white mb-2">3-4-5 호흡법</h3>
+                    <p className="text-sm text-text/70 dark:text-white/70 leading-relaxed">
+                      긴장을 풀고 마음을 가다듬는 시간이에요. 
+                      스트레스를 받았다면 천천히 호흡하며 시작해보세요.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => setShowBreathing(true)}
+                  className="px-8 py-4 bg-gradient-to-r from-primary to-accent text-white text-lg font-bold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                >
+                  🫁 호흡하고 시작하기
+                </button>
+                
+                <button
+                  onClick={() => {
+                    localStorage.setItem('welcome_completed', 'true')
+                    router.push('/chat?skipBreathing=true')
+                  }}
+                  className="px-8 py-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm text-text dark:text-white text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                >
+                  바로 시작하기
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="text-center animate-fadeIn">
@@ -166,6 +193,16 @@ export default function WelcomePage() {
                 />
               ))}
             </div>
+            
+            <button
+              onClick={() => {
+                localStorage.setItem('welcome_completed', 'true')
+                router.push('/chat?skipBreathing=true')
+              }}
+              className="mt-8 px-6 py-3 bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm text-text dark:text-white rounded-full hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-300"
+            >
+              건너뛰기
+            </button>
           </div>
         )}
       </div>

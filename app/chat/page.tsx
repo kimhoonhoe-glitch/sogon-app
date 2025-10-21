@@ -20,8 +20,9 @@ export default function ChatPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const isAnonymous = searchParams.get('anonymous') === 'true'
+  const skipBreathing = searchParams.get('skipBreathing') === 'true'
   
-  const [showBreathing, setShowBreathing] = useState(true)
+  const [showBreathing, setShowBreathing] = useState(!skipBreathing)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [category, setCategory] = useState<string>('')

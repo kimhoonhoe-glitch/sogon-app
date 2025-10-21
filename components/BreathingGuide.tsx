@@ -43,9 +43,16 @@ export default function BreathingGuide({ onComplete }: { onComplete: () => void 
         <h2 className="text-2xl font-medium text-text dark:text-white mb-2">
           {messages[phase]}
         </h2>
-        <p className="text-text/60 dark:text-white/60">
+        <p className="text-text/60 dark:text-white/60 mb-8">
           {count + 1} / 3
         </p>
+        
+        <button
+          onClick={onComplete}
+          className="px-6 py-3 bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm text-text dark:text-white rounded-full hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-300"
+        >
+          건너뛰기
+        </button>
       </div>
     </div>
   )
