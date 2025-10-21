@@ -147,11 +147,7 @@ export default function ChatPage() {
       <header className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
         <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
           <button 
-            onClick={() => {
-              if (confirm('초기 화면으로 이동하시겠습니까?')) {
-                router.push('/welcome')
-              }
-            }}
+            onClick={() => router.push('/welcome')}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
           >
             <span className="text-2xl">💙</span>
