@@ -38,7 +38,12 @@ SQLite 파일: \`prisma/dev.db\`
 Prisma schema: \`prisma/schema.prisma\`
 
 ## 최근 변경사항
-- 2024-10-21: 초기 프로젝트 생성
-- 모든 핵심 기능 구현 완료
+- 2024-10-21: 초기 프로젝트 생성 및 모든 핵심 기능 구현
 - 라벤더 컬러 시스템 디자인 적용
 - 모바일 반응형 레이아웃 구현
+- 중요 보안 수정:
+  * Password 필드 추가 및 bcrypt 해싱 구현
+  * Stripe 세션 재사용 방지 (stripeSessionId unique constraint)
+  * 서버 사이드 익명 모드 결정 (클라이언트 조작 불가)
+  * Subscription 레코드 자동 생성 (rate limit 우회 방지)
+  * 웹훅 핸들러 upsert 로직 구현

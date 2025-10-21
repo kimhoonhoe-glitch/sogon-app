@@ -8,7 +8,7 @@ import { FREE_DAILY_LIMIT } from '@/lib/stripe'
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    const { message, category, isAnonymous } = await req.json()
+    const { message, category } = await req.json()
 
     if (!message) {
       return new Response(JSON.stringify({ error: 'Message required' }), {
@@ -16,6 +16,8 @@ export async function POST(req: NextRequest) {
         headers: { 'Content-Type': 'application/json' },
       })
     }
+
+    const isAnonymous = !session?.user?.id
 
     const hasCrisis = detectCrisis(message)
 

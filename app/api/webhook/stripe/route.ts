@@ -26,12 +26,14 @@ export async function POST(req: NextRequest) {
           where: { userId },
           update: {
             stripeCustomerId: session.customer as string,
+            stripeSessionId: session.id,
             status: 'active',
             plan: 'premium',
           },
           create: {
             userId,
             stripeCustomerId: session.customer as string,
+            stripeSessionId: session.id,
             status: 'active',
             plan: 'premium',
           },

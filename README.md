@@ -178,6 +178,24 @@ mindkeeper/
 - **EmotionLog**: 감정 로그
 - **Subscription**: 구독 정보
 
+## 보안 기능
+
+### 인증 보안
+- bcrypt 기반 패스워드 해싱
+- NextAuth.js JWT 세션 관리
+- OAuth 2.0 통합 (Google)
+
+### 결제 보안
+- Stripe Checkout 세션 검증 (payment_status, status, metadata)
+- 세션 ID 재사용 방지 (unique constraint)
+- 웹훅 서명 검증 (HMAC SHA-256)
+- 서버 사이드 구독 상태 확인
+
+### API 보안
+- 서버 측 익명 모드 결정 (클라이언트 조작 불가)
+- 자동 구독 레코드 생성 (rate limit 우회 방지)
+- 인증된 사용자 요청 검증
+
 ## 특별 기능
 
 ### 3초 호흡 가이드
