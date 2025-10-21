@@ -7,7 +7,7 @@ export default function WelcomePage() {
   const router = useRouter()
   const [showBreathing, setShowBreathing] = useState(false)
   const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale')
-  const [phaseTime, setPhaseTime] = useState(3)
+  const [phaseTime, setPhaseTime] = useState(4)
   const [cycleCount, setCycleCount] = useState(0)
   const [fadeOut, setFadeOut] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -20,9 +20,9 @@ export default function WelcomePage() {
     if (!showBreathing) return
 
     const phases = [
-      { phase: 'inhale', duration: 3, next: 'hold' },
-      { phase: 'hold', duration: 4, next: 'exhale' },
-      { phase: 'exhale', duration: 5, next: 'inhale' },
+      { phase: 'inhale', duration: 4, next: 'hold' },
+      { phase: 'hold', duration: 7, next: 'exhale' },
+      { phase: 'exhale', duration: 8, next: 'inhale' },
     ]
 
     const currentPhaseIndex = phases.findIndex(p => p.phase === breathingPhase)
@@ -69,7 +69,7 @@ export default function WelcomePage() {
   }
 
   const getCircleScale = () => {
-    const progress = 1 - phaseTime / (breathingPhase === 'inhale' ? 3 : breathingPhase === 'hold' ? 4 : 5)
+    const progress = 1 - phaseTime / (breathingPhase === 'inhale' ? 4 : breathingPhase === 'hold' ? 7 : 8)
     
     if (breathingPhase === 'inhale') {
       return 0.5 + progress * 0.5
@@ -120,9 +120,9 @@ export default function WelcomePage() {
                 <div className="flex items-start gap-3 text-left mb-4">
                   <span className="text-2xl mt-1">🫁</span>
                   <div>
-                    <h3 className="font-semibold text-text dark:text-white mb-2">3-4-5 호흡법</h3>
+                    <h3 className="font-semibold text-text dark:text-white mb-2">4-7-8 호흡법</h3>
                     <p className="text-sm text-text/70 dark:text-white/70 leading-relaxed mb-3">
-                      3초 들이쉬고, 4초 참고, 5초 내쉬는 리듬으로
+                      4초 들이쉬고, 7초 참고, 8초 내쉬는 리듬으로
                       마음을 편안하게 만들어요.
                     </p>
                   </div>
@@ -196,10 +196,15 @@ export default function WelcomePage() {
               {getPhaseText()}
             </h2>
             
-            <p className="text-lg text-text/60 dark:text-white/60 mb-8">
-              {breathingPhase === 'inhale' && '코로 천천히 들이마셔요'}
-              {breathingPhase === 'hold' && '잠시 숨을 참아요'}
-              {breathingPhase === 'exhale' && '입으로 천천히 내쉬어요'}
+            <p className="text-lg text-text/60 dark:text-white/60 mb-4">
+              {breathingPhase === 'inhale' && '코로 깊게 들이마시기'}
+              {breathingPhase === 'hold' && '숨을 멈추고 있기'}
+              {breathingPhase === 'exhale' && '입으로 천천히 내쉬기'}
+            </p>
+            <p className="text-sm text-text/50 dark:text-white/50 mb-8">
+              {breathingPhase === 'inhale' && '(4초)'}
+              {breathingPhase === 'hold' && '(7초)'}
+              {breathingPhase === 'exhale' && '(8초)'}
             </p>
 
             <div className="max-w-sm mx-auto bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm rounded-2xl p-4 mb-6">
