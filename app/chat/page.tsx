@@ -153,7 +153,7 @@ export default function ChatPage() {
           <div className="flex gap-2">
             <button
               onClick={() => router.push('/dashboard')}
-              className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
+              className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
             >
               대시보드
             </button>
@@ -177,7 +177,7 @@ export default function ChatPage() {
                     className={`px-4 py-2 rounded-xl transition-all ${
                       category === key
                         ? 'bg-primary text-white'
-                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+                        : 'bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
                     {label}
@@ -198,7 +198,7 @@ export default function ChatPage() {
                 className={`max-w-[80%] p-4 rounded-2xl ${
                   message.role === 'user'
                     ? 'bg-primary text-white'
-                    : 'bg-white dark:bg-gray-800'
+                    : 'bg-white dark:bg-gray-800 text-text dark:text-white'
                 }`}
               >
                 {message.role === 'assistant' && message.emotion && (
@@ -226,7 +226,7 @@ export default function ChatPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="무슨 일이 있었는지 편하게 얘기해주세요..."
-              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all"
               rows={2}
               disabled={isLoading}
             />

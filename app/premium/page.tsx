@@ -71,7 +71,27 @@ export default function PremiumPage() {
             <button onClick={() => router.push('/chat')} className="text-2xl">💙</button>
             <h1 className="text-xl font-bold text-text dark:text-white">프리미엄</h1>
           </div>
-          <ThemeToggle />
+          <div className="flex gap-2">
+            <button
+              onClick={() => router.push('/chat')}
+              className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
+            >
+              💬 대화
+            </button>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
+            >
+              📊 대시보드
+            </button>
+            <button
+              onClick={() => router.push('/profile')}
+              className="px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium"
+            >
+              👤 프로필
+            </button>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
