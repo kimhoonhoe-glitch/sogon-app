@@ -10,8 +10,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: '마음지기 | MindKeeper',
-  description: '직장인을 위한 AI 감정 코칭 앱. 당신의 감정을 먼저 들어드릴게요.',
+  title: '소곤 SOGON',
+  description: '말해보세요. 당신 편이 조용히 듣고 있어요',
   keywords: ['감정 상담', 'AI 코칭', '직장인', '스트레스', '멘탈 헬스'],
 }
 

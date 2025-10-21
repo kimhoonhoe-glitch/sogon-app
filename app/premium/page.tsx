@@ -88,7 +88,7 @@ export default function PremiumPage() {
 
         <div className="text-center py-8">
           <h2 className="text-3xl font-bold text-text dark:text-white mb-4">
-            마음지기 프리미엄
+            소곤 SOGON 프리미엄
           </h2>
           <p className="text-text/70 dark:text-white/70 text-lg">
             무제한 대화와 더 깊은 감정 분석을 경험하세요

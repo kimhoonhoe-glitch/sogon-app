@@ -136,7 +136,7 @@ export default function ChatPage() {
           <div className="flex items-center gap-3">
             <span className="text-2xl">💙</span>
             <div>
-              <h1 className="text-xl font-bold text-text dark:text-white">마음지기</h1>
+              <h1 className="text-xl font-bold text-text dark:text-white">소곤 SOGON</h1>
               <p className="text-xs text-text/60 dark:text-white/60">
                 {isAnonymous ? '익명 체험' : session?.user?.name || '게스트'}
               </p>
