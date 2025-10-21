@@ -33,16 +33,17 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      alert('로그인이 필요한 페이지입니다.')
-      router.push('/')
+    if (status === 'loading') return
+
+    if (status === 'unauthenticated' || !session?.user?.id) {
+      router.replace('/')
       return
     }
 
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       fetchEmotions()
     }
-  }, [status, period, router])
+  }, [status, session, period, router])
 
   const fetchEmotions = async () => {
     try {
@@ -57,7 +58,22 @@ export default function DashboardPage() {
     }
   }
 
-  if (status === 'loading' || loading) {
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text/60 dark:text-white/60">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated' || !session?.user?.id) {
+    return null
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
