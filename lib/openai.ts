@@ -1,26 +1,19 @@
 import OpenAI from 'openai'
-import { EMOTION_CATEGORIES } from './emotions'
+import { EMOTION_CATEGORIES, WORKPLACE_CATEGORIES } from './emotions'
 
-const apiKey = process.env.OPENAI_API_KEY
+const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY
+const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL
 
 if (!apiKey && typeof window === 'undefined') {
-  console.warn('⚠️ OPENAI_API_KEY is not set. AI features will not work.')
+  console.warn('⚠️ OpenAI API key is not set. AI features will not work.')
 }
 
 export const openai = new OpenAI({
   apiKey: apiKey || 'dummy-key',
+  baseURL: baseURL || undefined,
 })
 
-export { EMOTION_CATEGORIES }
-
-export const WORKPLACE_CATEGORIES = {
-  boss: '상사 스트레스',
-  workload: '업무 압박',
-  sales: '영업 거절',
-  burnout: '번아웃',
-  colleagues: '동료 관계',
-  other: '기타',
-}
+export { EMOTION_CATEGORIES, WORKPLACE_CATEGORIES }
 
 export const CRISIS_KEYWORDS = [
   '죽고 싶',
@@ -76,11 +69,11 @@ export async function generateEmpathyResponse(
   category?: string,
   conversationHistory?: ChatMessage[]
 ): Promise<ReadableStream> {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY가 설정되지 않았습니다. 환경 변수를 확인해주세요.')
+  if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY && !process.env.OPENAI_API_KEY) {
+    throw new Error('OpenAI API key가 설정되지 않았습니다. 환경 변수를 확인해주세요.')
   }
 
-  const systemPrompt = `당신은 '마음지기' AI 상담사입니다.
+  const systemPrompt = `당신은 '소곤 SOGON' AI 상담사입니다.
 
 역할:
 - 직장 생활 10년 차 따뜻한 선배

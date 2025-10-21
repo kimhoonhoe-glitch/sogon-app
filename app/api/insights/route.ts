@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY && !process.env.OPENAI_API_KEY) {
       return NextResponse.json({
         insight: `${period === 'week' ? '이번 주' : '이번 달'}에는 다양한 감정을 경험하셨네요. 자신의 감정을 잘 인식하고 있다는 뜻이에요. 💙`
       })

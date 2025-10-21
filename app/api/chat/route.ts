@@ -12,7 +12,7 @@ interface ChatMessage {
 
 export async function POST(req: NextRequest) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY && !process.env.OPENAI_API_KEY) {
       return new Response(
         JSON.stringify({ 
           error: 'API key missing',

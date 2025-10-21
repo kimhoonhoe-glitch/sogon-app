@@ -7,8 +7,7 @@ import BreathingGuide from '@/components/BreathingGuide'
 import LoadingMessage from '@/components/LoadingMessage'
 import CrisisAlert from '@/components/CrisisAlert'
 import ThemeToggle from '@/components/ThemeToggle'
-import { EMOTION_CATEGORIES } from '@/lib/emotions'
-import { WORKPLACE_CATEGORIES } from '@/lib/openai'
+import { EMOTION_CATEGORIES, WORKPLACE_CATEGORIES } from '@/lib/emotions'
 
 interface Message {
   role: 'user' | 'assistant'

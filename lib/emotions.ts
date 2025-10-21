@@ -25,3 +25,12 @@ export const EMOTION_CATEGORIES = {
     color: '#F39C12',
   },
 }
+
+export const WORKPLACE_CATEGORIES = {
+  boss: '상사 스트레스',
+  workload: '업무 압박',
+  sales: '영업 거절',
+  burnout: '번아웃',
+  colleagues: '동료 관계',
+  other: '기타',
+}
