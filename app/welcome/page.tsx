@@ -172,7 +172,7 @@ export default function WelcomePage() {
           </div>
         ) : (
           <div className="text-center animate-fadeIn">
-            <div className="mb-6">
+            <div className="mb-12">
               <div className="relative w-64 h-64 mx-auto">
                 <div
                   className="absolute inset-0 rounded-full border-8 border-primary/30 flex items-center justify-center transition-all duration-1000 ease-in-out"
@@ -196,7 +196,7 @@ export default function WelcomePage() {
               {getPhaseText()}
             </h2>
             
-            <p className="text-lg text-text/60 dark:text-white/60 mb-6">
+            <p className="text-lg text-text/60 dark:text-white/60 mb-8">
               {breathingPhase === 'inhale' && '코로 천천히 들이마셔요'}
               {breathingPhase === 'hold' && '잠시 숨을 참아요'}
               {breathingPhase === 'exhale' && '입으로 천천히 내쉬어요'}

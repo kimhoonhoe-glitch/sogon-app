@@ -36,14 +36,14 @@ export default function BreathingGuide({ onComplete }: { onComplete: () => void 
     <div className="fixed inset-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-center px-4">
       <div className="text-center max-w-md">
         <div className={`
-          w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary to-accent
+          w-32 h-32 mx-auto mb-12 rounded-full bg-gradient-to-br from-primary to-accent
           transition-all duration-[3000ms] ease-in-out
           ${phase === 'inhale' ? 'scale-150 opacity-100' : phase === 'hold' ? 'scale-150 opacity-100' : 'scale-100 opacity-50'}
         `} />
         <h2 className="text-2xl font-medium text-text dark:text-white mb-2">
           {messages[phase]}
         </h2>
-        <p className="text-text/60 dark:text-white/60 mb-6">
+        <p className="text-text/60 dark:text-white/60 mb-8">
           {count + 1} / 3
         </p>
 
