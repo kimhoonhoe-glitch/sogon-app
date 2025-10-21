@@ -10,7 +10,6 @@ import ThemeToggle from '@/components/ThemeToggle'
 import PersonaSelector from '@/components/PersonaSelector'
 import { EMOTION_CATEGORIES } from '@/lib/emotions'
 import { Persona } from '@/lib/personas'
-import { speakText, stopSpeech, isSpeaking, isSpeechSupported } from '@/lib/speech'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -32,7 +31,6 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showCrisis, setShowCrisis] = useState(false)
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
-  const [speakingIndex, setSpeakingIndex] = useState<number | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -139,26 +137,6 @@ export default function ChatPage() {
     }
   }
 
-  const handleSpeak = (index: number, text: string) => {
-    if (speakingIndex === index && isSpeaking()) {
-      // 이미 재생 중이면 중지
-      stopSpeech()
-      setSpeakingIndex(null)
-    } else {
-      // 새로 재생
-      stopSpeech()
-      setSpeakingIndex(index)
-      speakText(text, selectedPersona?.id)
-      
-      // 재생 완료 확인
-      const checkInterval = setInterval(() => {
-        if (!isSpeaking()) {
-          setSpeakingIndex(null)
-          clearInterval(checkInterval)
-        }
-      }, 500)
-    }
-  }
 
   if (showBreathing) {
     return <BreathingGuide onComplete={() => setShowBreathing(false)} />
@@ -220,33 +198,20 @@ export default function ChatPage() {
               key={index}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className="flex items-start gap-2">
-                <div
-                  className={`max-w-[80%] p-4 rounded-2xl ${
-                    message.role === 'user'
-                      ? 'bg-primary text-white'
-                      : 'bg-white dark:bg-gray-800 text-text dark:text-white'
-                  }`}
-                >
-                  {message.role === 'assistant' && message.emotion && (
-                    <div className="flex items-center gap-2 mb-2 text-sm opacity-70">
-                      <span>{EMOTION_CATEGORIES[message.emotion as keyof typeof EMOTION_CATEGORIES]?.emoji}</span>
-                      <span>{EMOTION_CATEGORIES[message.emotion as keyof typeof EMOTION_CATEGORIES]?.label}</span>
-                    </div>
-                  )}
-                  <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                </div>
-                
-                {/* TTS 버튼 (AI 응답에만 표시) */}
-                {message.role === 'assistant' && isSpeechSupported() && (
-                  <button
-                    onClick={() => handleSpeak(index, message.content)}
-                    className="flex-shrink-0 w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center text-lg"
-                    title={speakingIndex === index ? "음성 중지" : "음성으로 듣기"}
-                  >
-                    {speakingIndex === index ? '⏸️' : '🔊'}
-                  </button>
+              <div
+                className={`max-w-[80%] p-4 rounded-2xl ${
+                  message.role === 'user'
+                    ? 'bg-primary text-white'
+                    : 'bg-white dark:bg-gray-800 text-text dark:text-white'
+                }`}
+              >
+                {message.role === 'assistant' && message.emotion && (
+                  <div className="flex items-center gap-2 mb-2 text-sm opacity-70">
+                    <span>{EMOTION_CATEGORIES[message.emotion as keyof typeof EMOTION_CATEGORIES]?.emoji}</span>
+                    <span>{EMOTION_CATEGORIES[message.emotion as keyof typeof EMOTION_CATEGORIES]?.label}</span>
+                  </div>
                 )}
+                <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
               </div>
             </div>
           ))}

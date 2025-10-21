@@ -124,18 +124,10 @@ Prisma schema: \`prisma/schema.prisma\`
 - API 라우트와 OpenAI 함수에 personaId 전달
 - 페르소나별 말투, 이모지, 위로 방식 차별화
 
-### TTS 음성 재생 추가 (2024-10-21) 🔊
-- lib/speech.ts: Web Speech API 사용
-- 페르소나별 음성 설정 (pitch, rate 조절)
-  * 애인: 부드럽고 따뜻하게 (pitch 1.1, rate 0.85)
-  * 친구: 밝고 활기차게 (pitch 1.0, rate 1.0)
-  * 형/누나: 안정적으로 (pitch 0.9, rate 0.9)
-  * 동생: 밝고 귀엽게 (pitch 1.2, rate 1.0)
-  * 엄마/아빠: 차분하고 따뜻하게 (pitch 0.8, rate 0.85)
-  * 선배: 전문적이고 차분하게 (pitch 0.9, rate 0.9)
-  * 멘토: 신중하고 천천히 (pitch 0.85, rate 0.8)
-- AI 응답 옆에 🔊 버튼 추가
-- 재생 중에는 ⏸️로 변경
+### TTS 기능 제거 (2024-10-21)
+- Web Speech API 품질이 기계음으로 들려 사용자 경험 저하
+- 자연스러운 음성(OpenAI TTS 등) 지원 시 재추가 예정
+- Replit AI Integration은 TTS 엔드포인트 미지원
 
 ### 호흡 가이드 강화 (2024-10-21) 🌬️
 - **4-7-8 호흡법**으로 업그레이드 (과학적 근거)
