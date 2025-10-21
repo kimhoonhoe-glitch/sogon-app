@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXTAUTH_URL}/premium?success=true`,
+      success_url: `${process.env.NEXTAUTH_URL}/premium?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXTAUTH_URL}/premium?canceled=true`,
       metadata: {
         userId: session.user.id,

@@ -17,7 +17,7 @@ const config: Config = {
         text: '#2D3436',
       },
       fontFamily: {
-        sans: ['var(--font-pretendard)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
       },
       borderRadius: {
         '2xl': '1rem',

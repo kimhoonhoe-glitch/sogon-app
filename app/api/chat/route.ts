@@ -20,11 +20,21 @@ export async function POST(req: NextRequest) {
     const hasCrisis = detectCrisis(message)
 
     if (!isAnonymous && session?.user?.id) {
-      const subscription = await prisma.subscription.findUnique({
+      let subscription = await prisma.subscription.findUnique({
         where: { userId: session.user.id },
       })
 
-      if (subscription?.plan === 'free') {
+      if (!subscription) {
+        subscription = await prisma.subscription.create({
+          data: {
+            userId: session.user.id,
+            status: 'free',
+            plan: 'free',
+          },
+        })
+      }
+
+      if (subscription.plan === 'free' || subscription.plan !== 'premium') {
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         

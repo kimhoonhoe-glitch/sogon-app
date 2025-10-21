@@ -33,6 +33,7 @@ export const authOptions: NextAuthOptions = {
             data: {
               email: credentials.email,
               name: credentials.email.split('@')[0],
+              password: hashedPassword,
               subscription: {
                 create: {
                   status: 'free',
@@ -42,6 +43,15 @@ export const authOptions: NextAuthOptions = {
             },
           })
           return newUser
+        }
+
+        if (!user.password) {
+          return null
+        }
+
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+        if (!isPasswordValid) {
+          return null
         }
 
         return user

@@ -13,12 +13,31 @@ export default function PremiumPage() {
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    if (searchParams.get('success')) {
-      setMessage('구독이 완료되었습니다! 이제 무제한으로 이용하실 수 있어요.')
-    } else if (searchParams.get('canceled')) {
-      setMessage('구독이 취소되었습니다.')
+    const handleSuccess = async () => {
+      const sessionId = searchParams.get('session_id')
+      if (searchParams.get('success') && sessionId && session?.user?.id) {
+        try {
+          const response = await fetch('/api/subscription/upgrade', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId }),
+          })
+          
+          if (response.ok) {
+            setMessage('구독이 완료되었습니다! 이제 무제한으로 이용하실 수 있어요.')
+          } else {
+            setMessage('구독 활성화 중 오류가 발생했습니다.')
+          }
+        } catch (error) {
+          setMessage('구독 활성화 중 오류가 발생했습니다.')
+        }
+      } else if (searchParams.get('canceled')) {
+        setMessage('구독이 취소되었습니다.')
+      }
     }
-  }, [searchParams])
+    
+    handleSuccess()
+  }, [searchParams, session])
 
   const handleUpgrade = async () => {
     if (status !== 'authenticated') {

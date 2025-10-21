@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import localFont from 'next/font/local'
 import './globals.css'
 import { ThemeProvider } from 'next-themes'
 import SessionProvider from '@/components/SessionProvider'
@@ -8,17 +7,6 @@ import SessionProvider from '@/components/SessionProvider'
 const inter = Inter({ 
   subsets: ['latin'],
   variable: '--font-inter',
-})
-
-const pretendard = localFont({
-  src: [
-    {
-      path: './fonts/PretendardVariable.woff2',
-      style: 'normal',
-    },
-  ],
-  variable: '--font-pretendard',
-  fallback: ['system-ui', 'sans-serif'],
 })
 
 export const metadata: Metadata = {
@@ -34,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body className={`${inter.variable} ${pretendard.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <SessionProvider>
             {children}
