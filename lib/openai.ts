@@ -66,17 +66,16 @@ interface ChatMessage {
 
 function sanitizeMessage(message: string): string {
   const sensitivePatterns = [
-    { pattern: /루저|찌질|패배자|실패자|낙오자/gi, replacement: '힘든 시기를 보내는 사람' },
-    { pattern: /쓰레기|똥|개같|병신|바보|멍청|한심|쓰레기같|개꼴|개판|ㅄ/gi, replacement: '힘든 상황' },
-    { pattern: /죽고\s*싶|죽어|자살|목숨|생을\s*마감|사라지고\s*싶|끝내고\s*싶|뛰어내리|떨어지고\s*싶|목\s*매|손목|자해/gi, replacement: '극도로 힘들고 지친' },
-    { pattern: /미치겠|미친|돌겠|돌아버리겠|미쳐|돌아|정신|제정신/gi, replacement: '매우 스트레스받' },
-    { pattern: /좆|씨발|개새|시발|ㅅㅂ|ㅆㅂ|fuck|shit|좇|시팔|씹|ㅈ같|ㅈ밥/gi, replacement: '정말' },
-    { pattern: /망했|망한|망할|끝났|끝난|망가진|다\s*끝|엿같|좆같/gi, replacement: '어려운' },
-    { pattern: /혐오|역겨|징그|더럽|토할|구역질/gi, replacement: '불편한' },
-    { pattern: /최악|지옥|헬|존나|좆나|개|ㅈㄴ|졸라|ㅈㄹ/gi, replacement: '매우' },
-    { pattern: /죽을\s*것\s*같|죽을만큼|죽도록|죽겠/gi, replacement: '극심하게' },
-    { pattern: /짜증|빡|열받|화나|분노|빡치|열불|ㅡㅡ/gi, replacement: '화가 나' },
-    { pattern: /걱정|불안|두려|무서|겁나|겁먹/gi, replacement: '걱정되' },
+    { pattern: /죽고\s*싶|죽어|자살|목숨|생을\s*마감|사라지고\s*싶|끝내고\s*싶|뛰어내리|떨어지고\s*싶|목\s*매|손목|자해|죽을\s*것\s*같|죽을만큼|죽도록|죽겠/gi, replacement: '매우 지쳐있' },
+    { pattern: /루저|찌질|패배자|실패자|낙오자/gi, replacement: '자신감이 부족한 상태' },
+    { pattern: /쓰레기|똥|개같|병신|바보|멍청|한심|쓰레기같|개꼴|개판|ㅄ/gi, replacement: '좋지 않은 상황' },
+    { pattern: /미치겠|미친|돌겠|돌아버리겠|미쳐|돌아|정신|제정신/gi, replacement: '심리적으로 힘든' },
+    { pattern: /좆|씨발|개새|시발|ㅅㅂ|ㅆㅂ|fuck|shit|좇|시팔|씹|ㅈ같|ㅈ밥/gi, replacement: '너무' },
+    { pattern: /망했|망한|망할|끝났|끝난|망가진|다\s*끝|엿같|좆같/gi, replacement: '안 좋은' },
+    { pattern: /혐오|역겨|징그|더럽|토할|구역질/gi, replacement: '불쾌한' },
+    { pattern: /최악|지옥|헬|존나|좆나|개|ㅈㄴ|졸라|ㅈㄹ/gi, replacement: '심하게' },
+    { pattern: /짜증|빡|열받|화나|분노|빡치|열불|ㅡㅡ/gi, replacement: '스트레스받' },
+    { pattern: /걱정|불안|두려|무서|겁나|겁먹/gi, replacement: '염려되' },
   ]
   
   let sanitized = message
@@ -101,47 +100,41 @@ export async function generateEmpathyResponse(
   
   const sanitizedMessage = sanitizeMessage(userMessage)
 
-  const systemPrompt = `당신은 공감과 위로를 제공하는 따뜻한 대화 상담사입니다.
+  const systemPrompt = `당신은 직장인을 위한 멘탈 웰니스 코치입니다.
 
-역할: 
-감정을 이해하고 건강한 관점을 제시하는 지지적 상담사입니다.
+업무 스트레스와 감정 관리 전문가로서 사용자의 이야기를 경청하고 건설적인 대화를 나눕니다.
 
-대화 원칙:
+대화 방식:
 
-1. 감정 인정하기
-- 상대방의 현재 감정을 인정해주세요
-- "힘든 상황이네요", "그런 기분이 드는 게 이해돼요"와 같이 표현하세요
+1. 감정 수용
+- 사용자의 현재 감정 상태를 인정합니다
+- "그럴 수 있어요", "이해해요"와 같은 표현을 사용합니다
 
-2. 긍정적 재구성
-- 어려움 속에서도 성장과 배움의 기회를 찾아주세요
-- 이미 가지고 있는 강점을 상기시켜주세요
-- 작은 진전도 격려해주세요
+2. 관점 제시
+- 상황을 다각도로 바라볼 수 있도록 돕습니다
+- 작은 성취와 강점을 찾아 언급합니다
+- 건강한 대처 방법을 제안합니다
 
-3. 건설적 조언
-- 실천 가능한 작은 행동을 제안하세요
-- 자기 돌봄의 중요성을 강조하세요
-- 예: "충분한 휴식 취하기", "작은 목표부터 시작하기"
+3. 실용적 조언
+- 즉시 실천 가능한 자기 돌봄 방법 제안
+- 휴식, 취미, 사회적 지지 등을 권장
+- 전문가 도움이 필요한 경우 안내
 
-4. 희망과 회복력 강조
-- 변화와 성장의 가능성을 상기시키세요
-- 현재 상황이 영원하지 않음을 알려주세요
-- 내면의 힘과 잠재력을 믿어주세요
+표현 스타일:
+- 친근한 반말 사용
+- 3~5문장 분량
+- 따뜻하고 격려하는 톤
+- 이모지 최소 사용
 
-말하는 방식:
-- 따뜻하고 지지적인 반말 사용
-- 3~5문장으로 간결하게 표현
-- 차분하고 희망적인 톤 유지
-- 이모지는 최소한으로 사용 (1개 정도)
+응답 예시:
+"업무가 정말 많이 힘들었구나. 그래도 여기까지 버텨온 게 대단해. 오늘은 좀 쉬면서 마음 추스르는 시간 가져봐. 내일은 조금 더 나아질 거야."
 
-좋은 응답 예시:
-"지금 많이 힘든 시간을 보내고 있는 것 같아요. 하지만 이렇게 자신의 감정을 표현할 수 있다는 것 자체가 큰 용기예요. 완벽하지 않아도 괜찮아요. 한 걸음씩 나아가다 보면 변화가 올 거예요."
+주의사항:
+- 극단적 표현 사용 금지
+- 과도한 감정 이입 지양
+- 현실적이고 균형잡힌 시각 유지
 
-피하기:
-- 부정적 감정을 강화하는 표현
-- 과도한 동정이나 연민
-- 비현실적인 낙관론
-
-${category ? `\n대화 맥락: ${WORKPLACE_CATEGORIES[category as keyof typeof WORKPLACE_CATEGORIES] || category}` : ''}`
+${category ? `\n상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WORKPLACE_CATEGORIES] || category}` : ''}`
 
   const messages: ChatMessage[] = [
     { role: 'system', content: systemPrompt },
