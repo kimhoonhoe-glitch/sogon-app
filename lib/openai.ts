@@ -1,16 +1,17 @@
 import OpenAI from 'openai'
+import { EMOTION_CATEGORIES } from './emotions'
+
+const apiKey = process.env.OPENAI_API_KEY
+
+if (!apiKey && typeof window === 'undefined') {
+  console.warn('⚠️ OPENAI_API_KEY is not set. AI features will not work.')
+}
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: apiKey || 'dummy-key',
 })
 
-export const EMOTION_CATEGORIES = {
-  joy: { label: '기쁨', color: '#A8E6CF', emoji: '😊' },
-  sadness: { label: '슬픔', color: '#B4A7D6', emoji: '😢' },
-  anger: { label: '화남', color: '#FFB4B4', emoji: '😠' },
-  anxiety: { label: '불안', color: '#FFE4B5', emoji: '😰' },
-  stress: { label: '스트레스', color: '#F5E6D3', emoji: '😤' },
-}
+export { EMOTION_CATEGORIES }
 
 export const WORKPLACE_CATEGORIES = {
   boss: '상사 스트레스',

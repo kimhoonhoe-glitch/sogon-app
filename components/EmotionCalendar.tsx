@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { EMOTION_CATEGORIES } from '@/lib/openai'
+import { EMOTION_CATEGORIES } from '@/lib/emotions'
 
 interface DailyEmotion {
   date: string

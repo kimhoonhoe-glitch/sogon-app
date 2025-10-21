@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { openai } from '@/lib/openai'
-import { EMOTION_CATEGORIES } from '@/lib/openai'
+import { EMOTION_CATEGORIES } from '@/lib/emotions'
 
 export async function POST(req: NextRequest) {
   try {

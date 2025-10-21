@@ -1,6 +1,5 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -25,30 +24,36 @@ interface DashboardData {
   }>
 }
 
-export default function DashboardPage() {
-  const { data: session, status } = useSession()
+export default function DashboardTestPage() {
   const router = useRouter()
   const [period, setPeriod] = useState<'week' | 'month'>('week')
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/')
-      return
-    }
-
-    if (status === 'authenticated') {
-      fetchEmotions()
-    }
-  }, [status, period])
+    fetchEmotions()
+  }, [period])
 
   const fetchEmotions = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/emotions?period=${period}`)
-      const result = await response.json()
-      setData(result)
+      
+      const sampleData: DashboardData = {
+        summary: {
+          totalConversations: 83,
+          emotions: {
+            joy: 15,
+            sadness: 18,
+            anger: 12,
+            anxiety: 20,
+            stress: 18,
+          }
+        },
+        chartData: generateChartData(period === 'week' ? 7 : 30),
+        dailyEmotions: generateDailyEmotions(period === 'week' ? 7 : 30),
+      }
+      
+      setData(sampleData)
     } catch (error) {
       console.error('Failed to fetch emotions:', error)
     } finally {
@@ -56,7 +61,51 @@ export default function DashboardPage() {
     }
   }
 
-  if (status === 'loading' || loading) {
+  const generateChartData = (days: number) => {
+    const data = []
+    const emotions = ['joy', 'sadness', 'anger', 'anxiety', 'stress']
+    
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      const dateStr = d.toISOString().split('T')[0]
+      
+      const emotionData: { [key: string]: number } = {}
+      emotions.forEach(emotion => {
+        emotionData[emotion] = Math.floor(Math.random() * 3)
+      })
+      
+      data.push({
+        date: dateStr,
+        emotions: emotionData,
+      })
+    }
+    
+    return data
+  }
+
+  const generateDailyEmotions = (days: number) => {
+    const data = []
+    const emotions = ['joy', 'sadness', 'anger', 'anxiety', 'stress']
+    
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      const dateStr = d.toISOString().split('T')[0]
+      
+      if (Math.random() > 0.3) {
+        data.push({
+          date: dateStr,
+          emotion: emotions[Math.floor(Math.random() * emotions.length)],
+          conversationCount: Math.floor(Math.random() * 3) + 1,
+        })
+      }
+    }
+    
+    return data
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
@@ -86,7 +135,7 @@ export default function DashboardPage() {
                   감정 트래커
                 </h1>
                 <p className="text-xs sm:text-sm text-text/60 dark:text-white/60">
-                  {session?.user?.name || session?.user?.email || '익명'}님의 감정 기록
+                  테스트 사용자님의 감정 기록
                 </p>
               </div>
             </div>
@@ -96,12 +145,6 @@ export default function DashboardPage() {
                 className="px-3 sm:px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white transition-all text-sm font-medium shadow-md hover:shadow-lg"
               >
                 💬 대화
-              </button>
-              <button
-                onClick={() => router.push('/profile')}
-                className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-sm font-medium shadow-md"
-              >
-                프로필
               </button>
               <ThemeToggle />
             </div>

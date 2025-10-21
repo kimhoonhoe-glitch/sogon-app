@@ -1,6 +1,6 @@
 'use client'
 
-import { EMOTION_CATEGORIES } from '@/lib/openai'
+import { EMOTION_CATEGORIES } from '@/lib/emotions'
 
 interface EmotionData {
   [key: string]: number

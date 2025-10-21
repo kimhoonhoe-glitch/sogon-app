@@ -12,7 +12,7 @@ import {
   Legend,
   Filler,
 } from 'chart.js'
-import { EMOTION_CATEGORIES } from '@/lib/openai'
+import { EMOTION_CATEGORIES } from '@/lib/emotions'
 
 ChartJS.register(
   CategoryScale,
