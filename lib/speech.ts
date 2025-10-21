@@ -1,64 +1,86 @@
-// OpenAI TTS를 사용한 고품질 음성 합성
+// Web Speech API - 최적화된 자연스러운 음성
 
-let currentAudio: HTMLAudioElement | null = null
+let currentUtterance: SpeechSynthesisUtterance | null = null
 
 export function isSpeechSupported(): boolean {
-  return typeof window !== 'undefined' && typeof Audio !== 'undefined'
+  return typeof window !== 'undefined' && 'speechSynthesis' in window
 }
 
-export async function speakText(text: string, personaId?: string): Promise<void> {
+// 최고 품질 음성 선택 (Google 한국어 우선)
+function getBestVoice(): SpeechSynthesisVoice | null {
+  const voices = window.speechSynthesis.getVoices()
+  
+  // 1순위: Google 한국어
+  const googleKo = voices.find(v => 
+    v.lang.includes('ko') && v.name.toLowerCase().includes('google')
+  )
+  if (googleKo) return googleKo
+  
+  // 2순위: 네이티브 한국어 (로컬)
+  const nativeKo = voices.find(v => 
+    v.lang.startsWith('ko') && v.localService
+  )
+  if (nativeKo) return nativeKo
+  
+  // 3순위: 모든 한국어
+  return voices.find(v => v.lang.startsWith('ko')) || null
+}
+
+export function speakText(text: string, personaId?: string): void {
   if (!isSpeechSupported()) {
-    console.warn('Audio not supported')
+    console.warn('Speech synthesis not supported')
     return
   }
 
-  try {
-    // 이미 재생 중이면 중지
-    if (currentAudio) {
-      currentAudio.pause()
-      currentAudio = null
-    }
+  // 이미 재생 중이면 중지
+  stopSpeech()
 
-    // OpenAI TTS API 호출
-    const response = await fetch('/api/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, personaId }),
-    })
-
-    if (!response.ok) {
-      throw new Error('TTS API failed')
-    }
-
-    // 오디오 블롭 생성
-    const audioBlob = await response.blob()
-    const audioUrl = URL.createObjectURL(audioBlob)
-
-    // 오디오 재생
-    currentAudio = new Audio(audioUrl)
-    
-    // 재생 완료 후 URL 해제
-    currentAudio.onended = () => {
-      URL.revokeObjectURL(audioUrl)
-      currentAudio = null
-    }
-
-    await currentAudio.play()
-  } catch (error) {
-    console.error('Speech error:', error)
-    throw error
+  const utterance = new SpeechSynthesisUtterance(text)
+  currentUtterance = utterance
+  
+  // 기본 설정 - 더 자연스럽게
+  utterance.lang = 'ko-KR'
+  utterance.volume = 1.0
+  utterance.pitch = 1.0  // 기본 피치
+  utterance.rate = 0.92  // 약간 느리게 (자연스러움)
+  
+  // 최고 품질 음성 선택
+  const bestVoice = getBestVoice()
+  if (bestVoice) {
+    utterance.voice = bestVoice
   }
+
+  // 재생 완료 이벤트
+  utterance.onend = () => {
+    currentUtterance = null
+  }
+  
+  utterance.onerror = (event) => {
+    console.error('Speech error:', event)
+    currentUtterance = null
+  }
+
+  window.speechSynthesis.speak(utterance)
 }
 
 export function stopSpeech(): void {
-  if (currentAudio) {
-    currentAudio.pause()
-    currentAudio.currentTime = 0
-    currentAudio = null
+  if (isSpeechSupported()) {
+    window.speechSynthesis.cancel()
+    currentUtterance = null
   }
 }
 
 export function isSpeaking(): boolean {
-  return currentAudio !== null && !currentAudio.paused
+  if (!isSpeechSupported()) return false
+  return window.speechSynthesis.speaking
+}
+
+// 음성 목록 로딩 보장
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.addEventListener('voiceschanged', () => {
+      // 음성 목록 로딩됨
+    })
+  }
 }
 
