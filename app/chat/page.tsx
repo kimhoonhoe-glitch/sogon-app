@@ -204,7 +204,12 @@ export default function ChatPage() {
 
   const stopRecording = () => {
     shouldRestartRef.current = false
-    recognitionRef.current?.stop()
+    // cleanup을 호출해서 자동 재시작 중지
+    if (recognitionRef.current && (recognitionRef.current as any).cleanup) {
+      (recognitionRef.current as any).cleanup()
+    } else {
+      recognitionRef.current?.stop()
+    }
     setIsListening(false)
   }
 

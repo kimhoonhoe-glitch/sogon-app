@@ -219,6 +219,8 @@ ${category ? `현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WOR
     async start(controller) {
       try {
         let fullResponse = ''
+        
+        // 전체 응답 수집
         for await (const chunk of stream) {
           const content = chunk.choices[0]?.delta?.content || ''
           if (content) {
@@ -226,12 +228,19 @@ ${category ? `현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WOR
           }
         }
         
-        // 응답 후처리: sanitize + guardrails
+        // 응답 후처리: sanitize + guardrails (안전성 우선)
         let processedResponse = sanitizeOutput(fullResponse)
         processedResponse = guardrails(processedResponse)
         
-        // 처리된 응답 전송
-        controller.enqueue(new TextEncoder().encode(processedResponse))
+        // 처리된 응답을 청크로 나눠서 전송 (스트리밍 효과 유지)
+        const chunkSize = 5 // 5글자씩 전송
+        for (let i = 0; i < processedResponse.length; i += chunkSize) {
+          const chunk = processedResponse.slice(i, i + chunkSize)
+          controller.enqueue(new TextEncoder().encode(chunk))
+          // 약간의 지연으로 스트리밍 효과
+          await new Promise(resolve => setTimeout(resolve, 20))
+        }
+        
         controller.close()
       } catch (error) {
         controller.error(error)
