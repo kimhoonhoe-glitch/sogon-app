@@ -18,15 +18,13 @@ export default function LandingPage() {
   const { register, handleSubmit } = useForm<LoginForm>()
 
   useEffect(() => {
-    const welcomeCompleted = localStorage.getItem('welcome_completed')
-    if (!welcomeCompleted) {
-      router.push('/welcome')
-    }
-  }, [router])
-
-  useEffect(() => {
     if (status === 'authenticated' && !isAnonymous) {
-      router.push('/chat')
+      const welcomeCompleted = localStorage.getItem('welcome_completed')
+      if (welcomeCompleted) {
+        router.push('/chat')
+      } else {
+        router.push('/welcome')
+      }
     }
   }, [status, router, isAnonymous])
 
@@ -44,7 +42,12 @@ export default function LandingPage() {
 
   const handleAnonymous = () => {
     setIsAnonymous(true)
-    router.push('/chat?anonymous=true')
+    const welcomeCompleted = localStorage.getItem('welcome_completed')
+    if (welcomeCompleted) {
+      router.push('/chat?anonymous=true&skipBreathing=true')
+    } else {
+      router.push('/welcome')
+    }
   }
 
   return (

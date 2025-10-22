@@ -91,14 +91,12 @@ export default function DashboardPage() {
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center gap-4">
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button 
-                onClick={() => router.push('/welcome')} 
-                className="text-2xl hover:opacity-80 transition-opacity"
-              >
-                💙
-              </button>
-              <div>
+            <button 
+              onClick={() => router.push('/welcome')} 
+              className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
+            >
+              <span className="text-2xl pointer-events-none">💙</span>
+              <div className="pointer-events-none">
                 <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white leading-tight">
                   감정 트래커
                 </h1>
@@ -106,7 +104,7 @@ export default function DashboardPage() {
                   {session?.user?.name || session?.user?.email || '익명'}님의 감정 기록
                 </p>
               </div>
-            </div>
+            </button>
             <div className="flex items-center gap-2 flex-wrap justify-end">
               <button
                 onClick={() => router.push('/chat')}

@@ -67,15 +67,13 @@ export default function PremiumPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10">
       <header className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
         <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button 
-              onClick={() => router.push('/welcome')} 
-              className="text-2xl hover:opacity-80 transition-opacity"
-            >
-              💙
-            </button>
-            <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white">프리미엄</h1>
-          </div>
+          <button 
+            onClick={() => router.push('/welcome')} 
+            className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
+          >
+            <span className="text-2xl pointer-events-none">💙</span>
+            <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white pointer-events-none">프리미엄</h1>
+          </button>
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <button
               onClick={() => router.push('/chat')}

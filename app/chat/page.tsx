@@ -249,10 +249,10 @@ export default function ChatPage() {
         <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
           <button 
             onClick={() => router.push('/welcome')}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0 cursor-pointer"
           >
-            <span className="text-2xl">💙</span>
-            <div>
+            <span className="text-2xl pointer-events-none">💙</span>
+            <div className="pointer-events-none">
               <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white leading-tight">소곤 SOGON</h1>
               <p className="text-xs text-text/60 dark:text-white/60 leading-tight">
                 {isAnonymous ? '익명 체험' : session?.user?.name || '게스트'}
