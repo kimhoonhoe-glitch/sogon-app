@@ -58,32 +58,12 @@ export default function DashboardPage() {
     }
   }
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-text/60 dark:text-white/60">로딩 중...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (status === 'unauthenticated' || !session?.user?.id) {
+  if (status === 'unauthenticated' || (status !== 'loading' && !session?.user?.id)) {
+    router.replace('/')
     return null
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-text/60 dark:text-white/60">로딩 중...</p>
-        </div>
-      </div>
-    )
-  }
-
+  const isLoading = status === 'loading' || loading
   const hasData = data && data.summary.totalConversations > 0
 
   return (
@@ -150,7 +130,14 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {hasData ? (
+        {isLoading ? (
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-3xl shadow-2xl p-12 text-center border border-white/20 dark:border-gray-700/50">
+              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-text/60 dark:text-white/60">감정 기록을 불러오는 중...</p>
+            </div>
+          </div>
+        ) : hasData ? (
           <div className="space-y-8">
             <div className="grid lg:grid-cols-2 gap-6">
               <div className="animate-slideInLeft">

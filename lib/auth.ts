@@ -11,6 +11,7 @@ const providers: any[] = [
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        mode: { label: 'Mode', type: 'text' },
       },
       async authorize(credentials) {
         try {
@@ -19,14 +20,20 @@ const providers: any[] = [
             return null
           }
 
-          console.log('Attempting login for:', credentials.email)
+          const mode = (credentials as any).mode || 'login'
+          console.log('Auth attempt:', credentials.email, 'mode:', mode)
 
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
           })
 
-          if (!user) {
-            console.log('User not found, creating new user')
+          if (mode === 'signup') {
+            if (user) {
+              console.log('User already exists')
+              return null
+            }
+            
+            console.log('Creating new user')
             const hashedPassword = await bcrypt.hash(credentials.password, 10)
             const newUser = await prisma.user.create({
               data: {
@@ -45,21 +52,28 @@ const providers: any[] = [
             return newUser
           }
 
-          console.log('User found:', user.id)
+          if (mode === 'login') {
+            if (!user) {
+              console.log('User not found')
+              return null
+            }
 
-          if (!user.password) {
-            console.log('User has no password')
-            return null
+            if (!user.password) {
+              console.log('User has no password')
+              return null
+            }
+
+            const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+            if (!isPasswordValid) {
+              console.log('Invalid password')
+              return null
+            }
+
+            console.log('Login successful')
+            return user
           }
 
-          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
-          if (!isPasswordValid) {
-            console.log('Invalid password')
-            return null
-          }
-
-          console.log('Login successful')
-          return user
+          return null
         } catch (error) {
           console.error('Auth error:', error)
           return null

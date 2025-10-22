@@ -36,31 +36,12 @@ export default function ProfilePage() {
     }
   }
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-text/60 dark:text-white/60">로딩 중...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (status === 'unauthenticated' || !session?.user?.id) {
+  if (status === 'unauthenticated' || (status !== 'loading' && !session?.user?.id)) {
+    router.replace('/')
     return null
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-text/60 dark:text-white/60">로딩 중...</p>
-        </div>
-      </div>
-    )
-  }
+  const isLoading = status === 'loading' || loading
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10">
@@ -120,24 +101,32 @@ export default function ProfilePage() {
 
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
             <h3 className="text-lg font-semibold mb-4 text-text dark:text-white">구독 정보</h3>
-            <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm text-text/60 dark:text-white/60">현재 플랜</p>
-                  <p className="text-2xl font-bold text-primary mt-1">
-                    {subscription?.plan === 'premium' ? '프리미엄' : '무료'}
-                  </p>
+            {isLoading ? (
+              <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-6">
+                <div className="flex justify-center py-8">
+                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
-                {subscription?.plan === 'free' && (
-                  <button
-                    onClick={() => router.push('/premium')}
-                    className="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all"
-                  >
-                    업그레이드
-                  </button>
-                )}
               </div>
-            </div>
+            ) : (
+              <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm text-text/60 dark:text-white/60">현재 플랜</p>
+                    <p className="text-2xl font-bold text-primary mt-1">
+                      {subscription?.plan === 'premium' ? '프리미엄' : '무료'}
+                    </p>
+                  </div>
+                  {subscription?.plan === 'free' && (
+                    <button
+                      onClick={() => router.push('/premium')}
+                      className="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all"
+                    >
+                      업그레이드
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">

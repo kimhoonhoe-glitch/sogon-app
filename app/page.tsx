@@ -23,6 +23,7 @@ export default function LandingPage() {
     const result = await signIn('credentials', {
       email: data.email,
       password: data.password,
+      mode: 'login',
       redirect: false,
     })
     
@@ -33,6 +34,23 @@ export default function LandingPage() {
       } else {
         router.push('/welcome')
       }
+    } else {
+      alert('이메일 또는 비밀번호가 올바르지 않습니다.')
+    }
+  }
+
+  const onEmailSignup = async (data: LoginForm) => {
+    const result = await signIn('credentials', {
+      email: data.email,
+      password: data.password,
+      mode: 'signup',
+      redirect: false,
+    })
+    
+    if (result?.ok) {
+      router.push('/welcome')
+    } else {
+      alert('회원가입에 실패했습니다. 이미 존재하는 이메일일 수 있습니다.')
     }
   }
 
@@ -71,7 +89,7 @@ export default function LandingPage() {
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-soft p-8 space-y-6">
-          <form onSubmit={handleSubmit(onEmailLogin)} className="space-y-4">
+          <form className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2 text-text dark:text-white">
                 이메일
@@ -94,14 +112,24 @@ export default function LandingPage() {
                 placeholder="••••••••"
               />
             </div>
-            <button
-              type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-xl transition-all duration-500 hover:shadow-soft"
-            >
-              로그인 / 회원가입
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={handleSubmit(onEmailLogin)}
+                className="w-full bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border-2 border-primary text-primary font-semibold py-3 rounded-xl transition-all duration-300"
+              >
+                로그인
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit(onEmailSignup)}
+                className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-xl transition-all duration-300 hover:shadow-soft"
+              >
+                회원가입
+              </button>
+            </div>
             <p className="text-xs text-center text-text/60 dark:text-white/60 mt-2">
-              처음이신가요? 이메일과 비밀번호 입력 후 버튼을 누르면 자동으로 회원가입됩니다.
+              처음이신가요? 회원가입 버튼을 눌러주세요. 이미 계정이 있다면 로그인하세요.
             </p>
           </form>
 
