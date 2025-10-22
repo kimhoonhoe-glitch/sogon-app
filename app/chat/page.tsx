@@ -10,7 +10,9 @@ import ThemeToggle from '@/components/ThemeToggle'
 import PersonaSelector from '@/components/PersonaSelector'
 import { EMOTION_CATEGORIES } from '@/lib/emotions'
 import { Persona } from '@/lib/personas'
-import { createRecognition, useSpeechRecognition } from '@/lib/speech-recognition'
+import { createRecognition, useSpeechRecognition, stopSpeaking } from '@/lib/speech-recognition'
+import TrustBadge from '@/components/TrustBadge'
+import { sanitizeInput } from '@/lib/sanitize'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -36,6 +38,7 @@ export default function ChatPage() {
   const [recognitionSupported, setRecognitionSupported] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
+  const shouldRestartRef = useRef(false)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -148,6 +151,80 @@ export default function ChatPage() {
     }
   }
 
+  const startRecording = () => {
+    // 반이중: TTS 재생 중이면 중지
+    stopSpeaking()
+    
+    const recognition = createRecognition(
+      (transcript, isFinal) => {
+        // 확정 결과만 입력창에 추가
+        if (isFinal) {
+          const cleaned = sanitizeInput(transcript)
+          setInput(prev => {
+            const combined = prev + ' ' + cleaned
+            return sanitizeInput(combined)
+          })
+        }
+      },
+      (error) => {
+        console.error('Speech recognition error:', error)
+        
+        if (error === 'not-allowed') {
+          // 복구 불가능한 에러: 완전 중지
+          shouldRestartRef.current = false
+          setIsListening(false)
+          alert('마이크 권한이 필요합니다. 브라우저 설정에서 마이크 권한을 허용해주세요.')
+        } else if (error === 'no-speech') {
+          // 복구 가능한 에러: 자동 재시작
+          if (shouldRestartRef.current) {
+            setTimeout(() => {
+              if (shouldRestartRef.current) {
+                startRecording()
+              }
+            }, 500)
+          } else {
+            setIsListening(false)
+          }
+        } else {
+          // 기타 에러: 중지
+          shouldRestartRef.current = false
+          setIsListening(false)
+        }
+      },
+      () => {
+        // 자동 재시작 (길게 말할 때 끊김 방지)
+        if (shouldRestartRef.current) {
+          setTimeout(() => {
+            if (shouldRestartRef.current) {
+              startRecording()
+            }
+          }, 300)
+        } else {
+          setIsListening(false)
+        }
+      }
+    )
+
+    if (recognition) {
+      recognitionRef.current = recognition
+      try {
+        recognition.start()
+        setIsListening(true)
+        shouldRestartRef.current = true
+      } catch (error) {
+        console.error('Failed to start recognition:', error)
+        shouldRestartRef.current = false
+        alert('음성 인식을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.')
+      }
+    }
+  }
+
+  const stopRecording = () => {
+    shouldRestartRef.current = false
+    recognitionRef.current?.stop()
+    setIsListening(false)
+  }
+
   const toggleVoiceInput = () => {
     if (!recognitionSupported) {
       alert('음성 인식이 지원되지 않는 브라우저입니다. Chrome, Edge 등을 사용해주세요.')
@@ -155,30 +232,9 @@ export default function ChatPage() {
     }
 
     if (isListening) {
-      recognitionRef.current?.stop()
-      setIsListening(false)
+      stopRecording()
     } else {
-      const recognition = createRecognition(
-        (transcript) => {
-          setInput(prev => prev + transcript)
-        },
-        (error) => {
-          console.error('Speech recognition error:', error)
-          setIsListening(false)
-          if (error === 'not-allowed') {
-            alert('마이크 권한이 필요합니다. 브라우저 설정에서 마이크 권한을 허용해주세요.')
-          }
-        },
-        () => {
-          setIsListening(false)
-        }
-      )
-
-      if (recognition) {
-        recognitionRef.current = recognition
-        recognition.start()
-        setIsListening(true)
-      }
+      startRecording()
     }
   }
 
@@ -204,6 +260,7 @@ export default function ChatPage() {
             </div>
           </button>
           <div className="flex items-center gap-2 flex-wrap justify-end">
+            <TrustBadge variant="badge" className="hidden sm:inline-block" />
             <PersonaSelector 
               onSelect={setSelectedPersona}
               initialPersona={selectedPersona?.id}
@@ -265,6 +322,9 @@ export default function ChatPage() {
 
       <footer className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 p-4">
         <div className="max-w-4xl mx-auto">
+          <p className="text-center text-xs text-text/60 dark:text-white/60 mb-3">
+            기록은 내 기기에만 저장됩니다. 분석 시에만 AI로 전송돼요.
+          </p>
           <div className="flex gap-2">
             <div className="flex-1 relative">
               <textarea

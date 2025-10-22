@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateEmpathyResponse, analyzeEmotion, detectCrisis } from '@/lib/openai'
 import { FREE_DAILY_LIMIT } from '@/lib/stripe'
+import { sanitizeInput } from '@/lib/sanitize'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     const session = await getServerSession(authOptions)
-    const { message, category, conversationHistory, personaId } = await req.json()
+    let { message, category, conversationHistory, personaId } = await req.json()
 
     if (!message) {
       return new Response(JSON.stringify({ error: 'Message required' }), {
@@ -31,6 +32,9 @@ export async function POST(req: NextRequest) {
         headers: { 'Content-Type': 'application/json' },
       })
     }
+
+    // 입력 전처리: 반복 제거
+    message = sanitizeInput(message)
 
     const isAnonymous = !session?.user?.id
 

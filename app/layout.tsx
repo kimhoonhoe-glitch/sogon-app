@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from 'next-themes'
 import SessionProvider from '@/components/SessionProvider'
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundary'
+import GuestGate from '@/components/GuestGate'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -23,11 +25,15 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <SessionProvider>
-            {children}
-          </SessionProvider>
-        </ThemeProvider>
+        <ErrorBoundaryWrapper>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+            <SessionProvider>
+              <GuestGate>
+                {children}
+              </GuestGate>
+            </SessionProvider>
+          </ThemeProvider>
+        </ErrorBoundaryWrapper>
       </body>
     </html>
   )
