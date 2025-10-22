@@ -66,8 +66,14 @@
   * public/sw.js: Service Worker로 오프라인 캐시
   * components/PWARegister.tsx: 자동 설치 프롬프트 감지
   * app/layout.tsx: PWA meta 태그 및 viewport 설정
+  * app/icon.tsx & app/apple-icon.tsx: Next.js 동적 아이콘 생성으로 모든 크기 자동 지원
+- **로그인 페이지 Hydration 에러 수정**:
+  * components/ThemeToggle.tsx: 시간 기반 아이콘 로직 제거 (서버/클라이언트 불일치 원인)
+  * 테마 기반(dark/light)으로만 아이콘 표시하여 SSR/CSR 일관성 확보
+  * React Hydration mismatch 에러 완전 해결로 로그인/회원가입/구글 로그인/익명 체험 버튼 정상 작동
 - **테스트 결과**:
-  * ✅ Service Worker 등록 성공 (콘솔 로그 확인)
+  * ✅ Service Worker 등록 성공
   * ✅ iOS Safari에서 음성 버튼 비활성화 및 tooltip 표시
   * ✅ Chrome/Edge에서 음성 입력 정상 작동
-  * ⚠️ 주의: PWA 아이콘 파일 (icon-192.png, icon-512.png) 추가 필요
+  * ✅ PWA 동적 아이콘 생성으로 404 에러 해결
+  * ✅ 로그인 페이지 모든 버튼 정상 작동 확인
