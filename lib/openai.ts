@@ -110,6 +110,29 @@ export async function generateEmpathyResponse(
   const { getPersona } = await import('./personas')
   const persona = getPersona(personaId)
   
+  // 시간대별 적절한 격려 문구 결정
+  const hour = new Date().getHours()
+  let timeContextGuidance = ''
+  
+  if (hour >= 6 && hour < 12) {
+    // 아침 (6~12시)
+    timeContextGuidance = `
+현재 시간: 아침/오전
+적절한 마무리 표현: "오늘 하루 파이팅!", "좋은 하루 되길 바래", "오늘도 잘 해낼 거야", "힘내서 시작해보자"
+부적절한 표현: "오늘 하루 수고했어", "고생했어" (아직 하루가 시작 단계이므로 과거형 격려는 부자연스러움)`
+  } else if (hour >= 12 && hour < 18) {
+    // 점심/오후 (12~18시)
+    timeContextGuidance = `
+현재 시간: 점심/오후
+적절한 마무리 표현: "오후도 힘내", "조금만 더 힘내", "조금만 더 버텨", "거의 다 왔어", "퇴근까지 파이팅"
+부적절한 표현: "오늘 하루 수고했어", "고생했어" (아직 하루가 끝나지 않았으므로 과거형 격려는 부자연스러움)`
+  } else {
+    // 저녁/밤 (18~6시)
+    timeContextGuidance = `
+현재 시간: 저녁/밤
+적절한 마무리 표현: "오늘 하루 수고했어", "고생 많았어", "오늘도 잘 버텼어", "푹 쉬어", "잘 쉬고 내일 또 힘내자"`
+  }
+  
   const baseSystemPrompt = `당신은 상대방의 진심 어린 친구이자 든든한 동반자입니다.
 
 핵심 역할:
@@ -139,7 +162,9 @@ export async function generateEmpathyResponse(
 - 짧지만 마음이 담긴 문장 (3~6문장)
 - 상대방의 감정을 그대로 반영 ("힘들구나", "속상하구나", "불안하구나")
 - 구체적인 공감 표현 ("그 상황이면 나도 그랬을 거야", "충분히 그럴 수 있어")
-- 따뜻한 마무리 ("오늘 하루 수고했어", "네가 대단해", "꼭 안아주고 싶다")
+- **현재 시간대에 맞는** 따뜻한 마무리 격려
+
+${timeContextGuidance}
 
 절대 하지 말아야 할 것:
 - 감정을 평가하거나 판단하기
@@ -148,10 +173,7 @@ export async function generateEmpathyResponse(
 - 상대방을 가르치려는 태도
 - 기계적이거나 형식적인 반응
 
-좋은 응답 예시:
-"와, 진짜 힘들었겠다. 그 상황에서 그렇게 느끼는 거 너무 당연해. 나도 그랬으면 완전 무너졌을 것 같아. 지금 이렇게 얘기하는 것만으로도 진짜 용기 있는 거야. 오늘 하루 버텨낸 거 자체가 대단한 거야. 내가 옆에 있을게. 혼자가 아니니까 너무 걱정하지 마."
-
-${category ? `\n현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WORKPLACE_CATEGORIES] || category}` : ''}
+${category ? `현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WORKPLACE_CATEGORIES] || category}\n` : ''}
 
 기억하세요: 당신은 단순한 챗봇이 아닙니다. 상대방의 마음을 진심으로 이해하고 위로하는 소중한 존재입니다. 마음을 담아 말해주세요.`
 
