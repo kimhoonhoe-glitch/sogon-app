@@ -141,6 +141,7 @@ export default function LandingPage() {
               <input
                 type="email"
                 {...register('email', { required: true })}
+                autoComplete="email"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-background dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                 placeholder="your@email.com"
               />
@@ -152,6 +153,7 @@ export default function LandingPage() {
               <input
                 type="password"
                 {...register('password', { required: true })}
+                autoComplete="current-password"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-background dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                 placeholder="••••••••"
               />

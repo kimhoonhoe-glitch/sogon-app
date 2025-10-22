@@ -49,8 +49,8 @@
 
 ## 최근 변경사항
 
-### 2025-10-22: iOS Safari STT 호환성 강화 및 PWA 지원
-- **iOS Safari 음성 입력 미지원 감지 및 안내**:
+### 2025-10-22: 프로덕션 완성도 최적화 및 경고 완전 제거
+- **iOS Safari STT 호환성 강화 및 PWA 지원**:
   * lib/speech-recognition.ts: checkSTTSupport() 함수로 브라우저별 지원 여부 확인
   * iOS Safari / macOS Safari 감지 시 자동으로 텍스트 입력 권장 토스트 표시
   * 마이크 버튼 tooltip에 "iOS Safari에서는 텍스트로 입력해주세요" 안내
@@ -64,16 +64,25 @@
 - **PWA (Progressive Web App) 지원**:
   * public/manifest.json: 홈 화면 추가 가능
   * public/sw.js: Service Worker로 오프라인 캐시
-  * components/PWARegister.tsx: 자동 설치 프롬프트 감지
+  * components/PWARegister.tsx: 이벤트 리스너 메모리 누수 방지 및 console.log 제거
   * app/layout.tsx: PWA meta 태그 및 viewport 설정
   * app/icon.tsx & app/apple-icon.tsx: Next.js 동적 아이콘 생성으로 모든 크기 자동 지원
 - **로그인 페이지 Hydration 에러 수정**:
   * components/ThemeToggle.tsx: 시간 기반 아이콘 로직 제거 (서버/클라이언트 불일치 원인)
   * 테마 기반(dark/light)으로만 아이콘 표시하여 SSR/CSR 일관성 확보
   * React Hydration mismatch 에러 완전 해결로 로그인/회원가입/구글 로그인/익명 체험 버튼 정상 작동
+- **프로덕션 품질 최적화**:
+  * **Form Accessibility**: autocomplete="email" 및 autocomplete="current-password" 속성 추가하여 브라우저 자동완성 및 보안 강화
+  * **Cross-Origin 경고 제거**: next.config.js에 allowedDevOrigins 설정으로 Replit 도메인 전체 허용 (localhost, 127.0.0.1, *.replit.dev, *.worf.replit.dev)
+  * **SEO 최적화**: app/robots.ts 및 app/sitemap.xml 생성으로 검색엔진 최적화 완료
+  * **코드 품질**: PWARegister.tsx에서 이벤트 리스너 정리(cleanup) 로직 추가 및 불필요한 console.log 제거
+  * **.next 빌드 캐시 초기화**: 완전한 재빌드로 모든 최적화 적용 확인
 - **테스트 결과**:
   * ✅ Service Worker 등록 성공
   * ✅ iOS Safari에서 음성 버튼 비활성화 및 tooltip 표시
   * ✅ Chrome/Edge에서 음성 입력 정상 작동
   * ✅ PWA 동적 아이콘 생성으로 404 에러 해결
   * ✅ 로그인 페이지 모든 버튼 정상 작동 확인
+  * ✅ robots.txt 및 sitemap.xml 정상 생성 (200 OK)
+  * ✅ Cross-origin 경고 완전 제거 (서버 로그 깨끗)
+  * ✅ HTML에 autocomplete 속성 제대로 적용됨 확인
