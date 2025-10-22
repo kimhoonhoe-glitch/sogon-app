@@ -17,8 +17,16 @@ export default function LandingPage() {
   const [isAnonymous, setIsAnonymous] = useState(false)
   const { register, handleSubmit } = useForm<LoginForm>()
 
-  useEffect(() => {
-    if (status === 'authenticated' && !isAnonymous) {
+  // 자동 리다이렉트 제거 - 사용자가 버튼을 눌러야만 이동
+
+  const onEmailLogin = async (data: LoginForm) => {
+    const result = await signIn('credentials', {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    })
+    
+    if (result?.ok) {
       const welcomeCompleted = localStorage.getItem('welcome_completed')
       if (welcomeCompleted) {
         router.push('/chat')
@@ -26,14 +34,6 @@ export default function LandingPage() {
         router.push('/welcome')
       }
     }
-  }, [status, router, isAnonymous])
-
-  const onEmailLogin = async (data: LoginForm) => {
-    await signIn('credentials', {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    })
   }
 
   const handleGoogleLogin = () => {
