@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const checkoutSession = await stripe.checkout.sessions.create({
+      const checkoutSession = await stripe!.checkout.sessions.create({ // 여기에 느낌표 추가!
       payment_method_types: ['card'],
       mode: 'subscription',
       customer_email: session.user.email,
