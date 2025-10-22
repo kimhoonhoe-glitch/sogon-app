@@ -97,6 +97,9 @@ export default function LandingPage() {
             >
               로그인 / 회원가입
             </button>
+            <p className="text-xs text-center text-text/60 dark:text-white/60 mt-2">
+              처음이신가요? 이메일과 비밀번호 입력 후 버튼을 누르면 자동으로 회원가입됩니다.
+            </p>
           </form>
 
           <div className="relative">

@@ -110,26 +110,30 @@ export async function generateEmpathyResponse(
   const { getPersona } = await import('./personas')
   const persona = getPersona(personaId)
   
-  // 시간대별 적절한 격려 문구 결정
-  const hour = new Date().getHours()
+  // 시간대별 적절한 격려 문구 결정 (한국 시간대 KST, UTC+9)
+  const now = new Date()
+  const kstOffset = 9 * 60 // 한국은 UTC+9
+  const kstTime = new Date(now.getTime() + kstOffset * 60 * 1000)
+  const hour = kstTime.getUTCHours()
+  
   let timeContextGuidance = ''
   
   if (hour >= 6 && hour < 12) {
     // 아침 (6~12시)
     timeContextGuidance = `
-현재 시간: 아침/오전
+현재 시간: 아침/오전 (한국 시간 ${hour}시)
 적절한 마무리 표현: "오늘 하루 파이팅!", "좋은 하루 되길 바래", "오늘도 잘 해낼 거야", "힘내서 시작해보자"
 부적절한 표현: "오늘 하루 수고했어", "고생했어" (아직 하루가 시작 단계이므로 과거형 격려는 부자연스러움)`
   } else if (hour >= 12 && hour < 18) {
     // 점심/오후 (12~18시)
     timeContextGuidance = `
-현재 시간: 점심/오후
+현재 시간: 점심/오후 (한국 시간 ${hour}시)
 적절한 마무리 표현: "오후도 힘내", "조금만 더 힘내", "조금만 더 버텨", "거의 다 왔어", "퇴근까지 파이팅"
 부적절한 표현: "오늘 하루 수고했어", "고생했어" (아직 하루가 끝나지 않았으므로 과거형 격려는 부자연스러움)`
   } else {
     // 저녁/밤 (18~6시)
     timeContextGuidance = `
-현재 시간: 저녁/밤
+현재 시간: 저녁/밤 (한국 시간 ${hour}시)
 적절한 마무리 표현: "오늘 하루 수고했어", "고생 많았어", "오늘도 잘 버텼어", "푹 쉬어", "잘 쉬고 내일 또 힘내자"`
   }
   
