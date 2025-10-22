@@ -1,5 +1,7 @@
 import OpenAI from 'openai'
 import { EMOTION_CATEGORIES, WORKPLACE_CATEGORIES } from './emotions'
+import { guardrails } from './moderate'
+import { sanitizeOutput } from './sanitize'
 
 if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY && typeof window === 'undefined') {
   console.warn('⚠️ OpenAI AI Integrations is not set. AI features will not work.')
@@ -221,9 +223,15 @@ ${category ? `현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WOR
           const content = chunk.choices[0]?.delta?.content || ''
           if (content) {
             fullResponse += content
-            controller.enqueue(new TextEncoder().encode(content))
           }
         }
+        
+        // 응답 후처리: sanitize + guardrails
+        let processedResponse = sanitizeOutput(fullResponse)
+        processedResponse = guardrails(processedResponse)
+        
+        // 처리된 응답 전송
+        controller.enqueue(new TextEncoder().encode(processedResponse))
         controller.close()
       } catch (error) {
         controller.error(error)

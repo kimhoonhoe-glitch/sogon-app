@@ -174,35 +174,18 @@ export default function ChatPage() {
           shouldRestartRef.current = false
           setIsListening(false)
           alert('마이크 권한이 필요합니다. 브라우저 설정에서 마이크 권한을 허용해주세요.')
-        } else if (error === 'no-speech') {
-          // 복구 가능한 에러: 자동 재시작
-          if (shouldRestartRef.current) {
-            setTimeout(() => {
-              if (shouldRestartRef.current) {
-                startRecording()
-              }
-            }, 500)
-          } else {
-            setIsListening(false)
-          }
         } else {
-          // 기타 에러: 중지
-          shouldRestartRef.current = false
-          setIsListening(false)
+          // 기타 에러: 자동 재시작이 처리함
+          console.warn('음성 인식 오류:', error)
         }
       },
       () => {
-        // 자동 재시작 (길게 말할 때 끊김 방지)
-        if (shouldRestartRef.current) {
-          setTimeout(() => {
-            if (shouldRestartRef.current) {
-              startRecording()
-            }
-          }, 300)
-        } else {
+        // onEnd는 자동 재시작이 처리함
+        if (!shouldRestartRef.current) {
           setIsListening(false)
         }
-      }
+      },
+      { autoRestart: true } // 자동 재시작 활성화
     )
 
     if (recognition) {
