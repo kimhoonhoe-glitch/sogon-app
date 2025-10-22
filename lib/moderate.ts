@@ -32,16 +32,36 @@ const replacements: Record<string, string> = {
   '오프라인': '온라인으로',
 }
 
+// 응답 내 특정 패턴 반복 횟수 추적
+let replaceCountCache: Record<string, number> = {}
+
 export function guardrails(text: string): string {
   let t = text
+  let totalReplaceCount = 0
   
   for (const phrase of bannedPhrases) {
     const regex = new RegExp(phrase, 'gi')
-    t = t.replace(regex, (matched) => {
-      const lowerMatched = matched.toLowerCase()
-      return replacements[lowerMatched] || replacements[phrase] || '현실적인 위로로 바꿀게요'
-    })
+    const matches = t.match(regex)
+    
+    if (matches && matches.length > 0) {
+      totalReplaceCount += matches.length
+      
+      t = t.replace(regex, (matched) => {
+        const lowerMatched = matched.toLowerCase()
+        return replacements[lowerMatched] || replacements[phrase] || '현실적인 위로로 바꿀게요'
+      })
+    }
+  }
+  
+  // 3회 초과 시 고정 메시지로 대체
+  if (totalReplaceCount > 3) {
+    t = '현실적 위로로 바꿀게요. 지금 이 순간부터 함께 해요.'
   }
   
   return t
+}
+
+// 캐시 초기화 함수
+export function resetGuardrailsCache() {
+  replaceCountCache = {}
 }

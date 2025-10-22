@@ -23,7 +23,8 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error('ErrorBoundary caught:', error, errorInfo)
+    // 사용자 데이터 제외, 에러 메시지만 로그
+    console.error('App Error:', error.message)
   }
 
   render() {

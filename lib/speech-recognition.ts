@@ -80,9 +80,14 @@ export const createRecognition = (
 
   const recognition = new SpeechRecognition()
   recognition.lang = 'ko-KR'
-  recognition.continuous = true // 길게 말할 때 끊김 방지
-  recognition.interimResults = false // 확정 결과만 사용 (중복 방지)
+  recognition.continuous = true
+  recognition.interimResults = false // interim 무시 - 중복 방지
   recognition.maxAlternatives = 1
+  
+  // 60초 타임아웃 설정
+  if ('maxSpeechTimeout' in recognition) {
+    (recognition as any).maxSpeechTimeout = 60000
+  }
 
   let shouldRestart = options?.autoRestart ?? false
   let restartTimeout: NodeJS.Timeout | null = null
@@ -94,14 +99,14 @@ export const createRecognition = (
   }
 
   recognition.onresult = (event: any) => {
-    // 마지막 확정 결과만 가져오기
-    const lastResult = event.results[event.results.length - 1]
-    if (lastResult && lastResult.isFinal) {
-      const finalTranscript = lastResult[0].transcript.trim()
-      if (finalTranscript) {
-        transcript += finalTranscript + ' '
-        onResult(finalTranscript, true)
-        console.log('✅ 인식:', finalTranscript)
+    // 모든 확정 결과 수집 (interim 무시)
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        const finalText = event.results[i][0].transcript.trim()
+        if (finalText) {
+          transcript += finalText + ' '
+          onResult(transcript.trim(), true)
+        }
       }
     }
   }
@@ -109,15 +114,15 @@ export const createRecognition = (
   recognition.onerror = (event: any) => {
     console.error('❌ STT 오류:', event.error)
     
-    // 권한 거부
+    // 권한 거부 - 명확한 가이드
     if (event.error === 'not-allowed') {
-      onError?.('not-allowed')
+      onError?.('마이크 권한을 허용해주세요. 브라우저 설정 > 사이트 권한 > 소곤 허용!')
       return
     }
     
     // 네트워크 오류
     if (event.error === 'network') {
-      onError?.('network')
+      onError?.('인터넷 연결을 확인해주세요.')
       return
     }
     
@@ -130,23 +135,25 @@ export const createRecognition = (
         } catch (e) {
           // 이미 시작된 경우 무시
         }
-      }, 500)
+      }, 1000)
     } else if (event.error !== 'no-speech') {
-      onError?.(event.error)
+      onError?.('인식 오류예요. 조용한 곳에서 다시 시도해보세요. [재시작] 버튼 클릭!')
     }
   }
 
   recognition.onend = () => {
-    // 자동 재시작이 활성화되어 있으면 재시작
+    // 자동 재시작 - 끊김 방지
     if (shouldRestart) {
       if (restartTimeout) clearTimeout(restartTimeout)
       restartTimeout = setTimeout(() => {
-        try {
-          recognition.start()
-        } catch (e) {
-          // 이미 시작된 경우 무시
+        if (shouldRestart) {
+          try {
+            recognition.start()
+          } catch (e) {
+            // 이미 시작된 경우 무시
+          }
         }
-      }, 500)
+      }, 1000)
     }
     onEnd?.()
   }
@@ -174,15 +181,18 @@ export const speak = (text: string): void => {
   
   const synth = window.speechSynthesis
   
-  // 이전 음성 중지
+  // 이전 음성 완전히 중지
   synth.cancel()
   
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = 'ko-KR'
-  utterance.rate = 0.95
-  utterance.pitch = 1.05
-  
-  synth.speak(utterance)
+  // 약간의 지연 후 재생 (cancel 완료 보장)
+  setTimeout(() => {
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'ko-KR'
+    utterance.rate = 0.95
+    utterance.pitch = 1.05
+    
+    synth.speak(utterance)
+  }, 50)
 }
 
 export const stopSpeaking = (): void => {

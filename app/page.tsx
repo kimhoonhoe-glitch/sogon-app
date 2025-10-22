@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import ThemeToggle from '@/components/ThemeToggle'
+import TrustBadge from '@/components/TrustBadge'
 
 interface LoginForm {
   email: string
@@ -225,10 +226,13 @@ export default function LandingPage() {
           </button>
         </div>
 
-        <p className="text-center text-xs text-text/50 dark:text-white/50 mt-6 px-4">
-          마음지기는 의료 서비스가 아닙니다.<br />
-          응급 상황 시 전문 상담사와 상담하세요.
-        </p>
+        <div className="flex flex-col items-center gap-2 mt-6">
+          <TrustBadge variant="text" />
+          <p className="text-center text-xs text-text/50 dark:text-white/50 px-4">
+            마음지기는 의료 서비스가 아닙니다.<br />
+            응급 상황 시 전문 상담사와 상담하세요.
+          </p>
+        </div>
       </div>
     </div>
   )

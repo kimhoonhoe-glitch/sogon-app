@@ -1,0 +1,41 @@
+당신은 Next.js 14 + TS 기반의 “소곤” 프로젝트를 최종 디버깅합니다. 질문 없이 적용하세요.
+
+목표
+- STT/TTS 버그 최종 해결: interim 무시, 타임아웃 60초, onerror 가이드 토스트, iOS 미지원 안내.
+- 답변 퀄리티 업: 프롬프트 penalty 강화, 금지어 필터 확장(‘안아줄게’ 5회 초과 시 대체), 다양성 위해 random seed.
+- UX 개선: 로컬 배지 3곳 추가, 권한 팝업 가이드, 에러 바운더리 강화.
+- 코드 정리: console.log 사용자 데이터 제거, 유틸 함수 중앙화.
+- 데모 모드: 키 없으면 샘플 응답.
+
+1) lib/speech.ts 최종
+- startRecording():
+  - iOS 감지: if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) { showToast('iOS에서는 음성 입력이 지원되지 않아요. 텍스트로 써보세요!'); return; }
+  - recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  - recognition.lang = 'ko-KR'; continuous = true; interimResults = false;  // interim 무시
+  - recognition.maxSpeechTimeout = 60000;  // 60초 타임아웃
+  - onresult: for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) transcript += event.results[i][0].transcript + ' '; setInput(transcript); }
+  - onerror = (e) => {
+    if (e.error === 'not-allowed') showToast('마이크 권한을 허용해주세요. 브라우저 설정 > 사이트 권한 > 소곤 허용!');
+    else if (e.error === 'network') showToast('인터넷 연결 확인해주세요.');
+    else showToast('인식 오류예요. 조용한 곳에서 다시 시도해보세요. [재시작] 버튼');
+    // 재시작 버튼 토스트
+  };
+  - onend: setTimeout(1000, () => if (!isRecording) startRecording());  // 끊김 방지 자동 재시작
+- speak(): speechSynthesis.cancel(); 후 재생.
+
+2) /api/analyze 퀄리티 업
+- 입력: sanitizeInput(text)
+- 프롬프트: frequency_penalty 1.0 (반복 ↓), presence_penalty 0.3 (다양성 ↑)
+- 금지어 필터 확장: bannedPhrases에 '안아줄게', '포옹', '술 한잔', '만나서', '밥 사줄게', '데이트' 추가. replace 시 카운트, 3회 초과 시 '현실적 위로로 바꿀게요' 고정.
+- few-shot 1개 더: 입력 “지쳐서 반복되는 하루야” → 출력 {emotions:["피로"], advice:["매일 같은 패턴이 지치게 하네요.","작은 변화 하나부터, 예를 들어 창가에서 1분 서보기 어때요?"], microRoutine:{title:"1분 창밖 보기", steps:["숨쉬기","주변 관찰","천천히 돌아서기"]}}
+
+3) UX/UI
+- app/page.tsx: 입력 아래 TrustBadge 추가. STT 버튼 옆 Tooltip: “iOS: 텍스트 추천 | 안드로이드/Chrome: 음성 OK”.
+- ErrorBoundary 강화: catch(e) { showToast('오류 발생! 새로고침 해보세요.'); console.error('App Error:', e.message); }  // 사용자 데이터 로그 금지
+- lib/utils.ts: sanitize 함수 중앙화.
+
+4) 코드 정리
+- 모든 console.log에서 사용자 text 제거 (e.g., console.log('Input:', sanitizeInput(text.slice(0,10) + '...')); )
+- 데모 모드: if (!process.env.OPENAI_API_KEY) return demoResponse(JSON.parse('{"emotions":["스트레스"],"advice":["힘들었겠어요","숨 고르기 해보세요"],"microRoutine":{...}}'));
+
+완료 후 콘솔 체크리스트 출력.

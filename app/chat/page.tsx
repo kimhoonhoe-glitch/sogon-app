@@ -177,15 +177,17 @@ export default function ChatPage() {
         }
       },
       (error) => {
-        console.error('Speech recognition error:', error)
+        console.error('Speech recognition error:', typeof error === 'string' ? error.slice(0, 30) : error)
         
-        if (error === 'not-allowed') {
+        if (typeof error === 'string' && error.includes('권한')) {
           // 복구 불가능한 에러: 완전 중지
           shouldRestartRef.current = false
           setIsListening(false)
-          showToast('마이크 권한을 허용해주세요. 브라우저 설정 > 사이트 권한을 확인하세요!', 'error')
-        } else if (error === 'network') {
-          showToast('네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.', 'error')
+          showToast(error, 'error')
+        } else if (typeof error === 'string' && error.includes('인터넷')) {
+          showToast(error, 'error')
+        } else if (typeof error === 'string') {
+          showToast(error, 'warning')
         } else {
           // 기타 에러: 자동 재시작이 처리함
           showToast('인식 오류예요. 조용한 곳에서 다시 시도해보세요.', 'warning')
@@ -332,9 +334,9 @@ export default function ChatPage() {
 
       <footer className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 p-4">
         <div className="max-w-4xl mx-auto">
-          <p className="text-center text-xs text-text/60 dark:text-white/60 mb-3">
-            기록은 내 기기에만 저장됩니다. 분석 시에만 AI로 전송돼요.
-          </p>
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <TrustBadge variant="text" />
+          </div>
           <div className="flex gap-2">
             <div className="flex-1 relative">
               <textarea
@@ -356,8 +358,8 @@ export default function ChatPage() {
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
                 title={
                   !sttSupport.supported 
-                    ? 'iOS Safari에서는 텍스트로 입력해주세요' 
-                    : isListening ? '녹음 중지' : '음성 입력 (길게 말해보세요)'
+                    ? 'iOS: 텍스트 입력 추천 | Chrome/안드로이드: 음성 OK' 
+                    : isListening ? '녹음 중지' : '음성 입력 시작 (60초 타임아웃)'
                 }
               >
                 {isListening ? '⏸️' : '🎤'}

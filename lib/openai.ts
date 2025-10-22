@@ -90,8 +90,9 @@ function sanitizeMessage(message: string): string {
     sanitized = '일상생활에서 스트레스와 어려움을 겪고 있습니다'
   }
   
-  console.log('Original message:', message)
-  console.log('Sanitized message:', sanitized)
+  // 사용자 데이터 로그 최소화
+  const preview = sanitized.slice(0, 15) + (sanitized.length > 15 ? '...' : '')
+  console.log('Sanitized preview:', preview)
   
   return sanitized
 }
@@ -209,6 +210,8 @@ ${category ? `현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WOR
       stream: true,
       temperature: 0.7,
       max_tokens: 500,
+      frequency_penalty: 1.0, // 반복 표현 강력하게 억제
+      presence_penalty: 0.3,  // 다양성 증가
     },
     {
       timeout: 30000,

@@ -13,13 +13,32 @@ interface ChatMessage {
 
 export async function POST(req: NextRequest) {
   try {
-    if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY && !process.env.OPENAI_API_KEY) {
+    // 데모 모드: API 키 없으면 샘플 응답 반환
+    const hasApiKey = !!(process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY)
+    
+    if (!hasApiKey) {
+      const demoResponse = '힘들었겠어요. 지금 이 순간도 충분히 잘 버티고 있는 거예요. 잠시 숨 고르며 쉬어가도 괜찮아요. 💙'
+      const encoder = new TextEncoder()
+      
       return new Response(
-        JSON.stringify({ 
-          error: 'API key missing',
-          message: 'OpenAI API 키가 설정되지 않았습니다. 관리자에게 문의해주세요.',
+        new ReadableStream({
+          start(controller) {
+            for (let i = 0; i < demoResponse.length; i += 3) {
+              const chunk = demoResponse.slice(i, i + 3)
+              controller.enqueue(encoder.encode(chunk))
+            }
+            controller.close()
+          }
         }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Emotion': 'stress',
+            'X-Crisis': 'false',
+          },
+        }
       )
     }
 
