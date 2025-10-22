@@ -267,9 +267,17 @@ export default function ChatPage() {
             />
             <button
               onClick={() => router.push('/dashboard')}
-              className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
+              className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-1"
             >
-              대시보드
+              <span>📊</span>
+              <span className="hidden sm:inline">대시보드</span>
+            </button>
+            <button
+              onClick={() => router.push('/profile')}
+              className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-1"
+            >
+              <span>👤</span>
+              <span className="hidden sm:inline">프로필</span>
             </button>
             <ThemeToggle />
           </div>
