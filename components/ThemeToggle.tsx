@@ -13,7 +13,11 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="p-2 rounded-xl bg-white/50 dark:bg-gray-800/50 w-10 h-10" />
+      <button
+        className="p-2 rounded-xl bg-white/50 dark:bg-gray-800/50 w-10 h-10"
+        aria-label="Toggle theme"
+        disabled
+      />
     )
   }
 

@@ -49,6 +49,21 @@
 
 ## 최근 변경사항
 
+### 2025-10-22: Hydration Mismatch 오류 수정 및 호흡법 타이머 정확도 개선
+
+**Hydration Mismatch 오류 완전 해결:**
+- **components/ThemeToggle.tsx**: 서버/클라이언트 마크업 불일치 수정
+  * mounted가 false일 때 `<div>` 반환 → `<button disabled>` 반환으로 변경
+  * 서버와 클라이언트 모두 동일한 `<button>` 엘리먼트 렌더링하여 Hydration 일관성 확보
+  * React Hydration failed 에러 완전 제거
+- **app/layout.tsx**: `suppressHydrationWarning` 속성으로 테마 관련 경고 억제
+
+**4-7-8 호흡법 타이머 정확도 개선:**
+- **components/BreathingGuide.tsx**: 실제 시간 기반 타이머로 전면 재설계
+  * 기존: `setInterval(1000)` 사용으로 부정확한 타이밍
+  * 수정: `Date.now()` 기반 실시간 계산으로 정확한 4초-7초-8초 타이밍 구현
+  * 50ms 주기로 업데이트하여 부드럽고 정확한 카운트다운 제공
+
 ### 2025-10-22: 프로덕션 완성도 최적화 및 경고 완전 제거
 - **iOS Safari STT 호환성 강화 및 PWA 지원**:
   * lib/speech-recognition.ts: checkSTTSupport() 함수로 브라우저별 지원 여부 확인
