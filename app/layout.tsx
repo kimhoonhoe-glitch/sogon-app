@@ -33,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased min-h-screen bg-gradient-to-br from-background to-secondary`}>
         <PWARegister />
         <ErrorBoundaryWrapper>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>

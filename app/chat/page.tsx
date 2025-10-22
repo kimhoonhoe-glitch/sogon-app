@@ -248,8 +248,8 @@ export default function ChatPage() {
   return (
     <>
       <ToastContainer />
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex flex-col">
-      <header className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex flex-col pt-16">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 p-3 md:p-4">
         <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
           <button 
             onClick={() => router.push('/welcome')}
@@ -288,8 +288,8 @@ export default function ChatPage() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4">
-        <div className="max-w-4xl mx-auto space-y-4">
+      <main className="flex-1 overflow-y-auto p-4 pb-32">
+        <div className="w-full max-w-4xl mx-auto space-y-4">
           {messages.length === 0 && (
             <div className="text-center py-12">
               <h2 className="text-2xl font-semibold text-text dark:text-white mb-4">
@@ -309,7 +309,7 @@ export default function ChatPage() {
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] p-4 rounded-2xl ${
+                className={`max-w-[85%] sm:max-w-[80%] p-3 md:p-4 rounded-2xl overflow-hidden ${
                   message.role === 'user'
                     ? 'bg-primary text-white'
                     : 'bg-white dark:bg-gray-800 text-text dark:text-white'
@@ -332,43 +332,45 @@ export default function ChatPage() {
         </div>
       </main>
 
-      <footer className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-center gap-2 mb-3">
+      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 p-3 md:p-4">
+        <div className="w-full max-w-4xl mx-auto">
+          <div className="flex items-center justify-center gap-2 mb-2">
             <TrustBadge variant="text" />
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1 relative">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="무슨 일이 있었는지 편하게 얘기해주세요..."
-                className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                className="w-full min-h-[60px] px-4 py-3 pr-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all overflow-hidden"
                 rows={2}
                 disabled={isLoading}
               />
-              <button
-                onClick={toggleVoiceInput}
-                disabled={isLoading || !sttSupport.supported}
-                className={`absolute right-3 top-3 p-2 rounded-lg transition-all ${
-                  isListening 
-                    ? 'bg-red-500 text-white animate-pulse' 
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                title={
-                  !sttSupport.supported 
-                    ? 'iOS: 텍스트 입력 추천 | Chrome/안드로이드: 음성 OK' 
-                    : isListening ? '녹음 중지' : '음성 입력 시작 (60초 타임아웃)'
-                }
-              >
-                {isListening ? '⏸️' : '🎤'}
-              </button>
+              {sttSupport.supported ? (
+                <button
+                  onClick={toggleVoiceInput}
+                  disabled={isLoading}
+                  className={`absolute right-3 top-3 p-2 rounded-lg transition-all ${
+                    isListening 
+                      ? 'bg-red-500 text-white animate-pulse' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  title={isListening ? '녹음 중지' : '음성 입력 시작 (60초 타임아웃)'}
+                >
+                  {isListening ? '⏸️' : '🎤'}
+                </button>
+              ) : (
+                <div className="absolute right-3 top-3 text-xs text-gray-400 dark:text-gray-500">
+                  iOS: 텍스트로 입력
+                </div>
+              )}
             </div>
             <button
               onClick={sendMessage}
               disabled={isLoading || !input.trim()}
-              className="px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-semibold rounded-xl transition-all duration-500 hover:shadow-soft disabled:cursor-not-allowed"
+              className="w-full sm:w-auto px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-semibold rounded-xl transition-all duration-500 hover:shadow-soft disabled:cursor-not-allowed"
             >
               전송
             </button>
