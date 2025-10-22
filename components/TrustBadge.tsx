@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface TrustBadgeProps {
   variant?: 'badge' | 'text'
@@ -8,18 +8,31 @@ interface TrustBadgeProps {
 }
 
 export default function TrustBadge({ variant = 'badge', className = '' }: TrustBadgeProps) {
+  const [mounted, setMounted] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <div className={`text-xs text-text/60 dark:text-white/60 ${className}`} suppressHydrationWarning>
+        🔒 로컬 저장 · 서버 미저장
+      </div>
+    )
+  }
 
   if (variant === 'text') {
     return (
-      <p className={`text-xs text-text/60 dark:text-white/60 ${className}`}>
+      <p className={`text-xs text-text/60 dark:text-white/60 ${className}`} suppressHydrationWarning>
         🔒 로컬 저장 · 서버 미저장
       </p>
     )
   }
 
   return (
-    <div className={`relative inline-block ${className}`}>
+    <div className={`relative inline-block ${className}`} suppressHydrationWarning>
       <button
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}

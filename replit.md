@@ -56,6 +56,13 @@
   * mounted가 false일 때 `<div>` 반환 → `<button disabled>` 반환으로 변경
   * 서버와 클라이언트 모두 동일한 `<button>` 엘리먼트 렌더링하여 Hydration 일관성 확보
   * React Hydration failed 에러 완전 제거
+- **app/page.tsx**: LandingPage 컴포넌트 Hydration 보호
+  * TrustBadge 컨테이너에 `suppressHydrationWarning` 추가하여 동적 요소 경고 억제
+  * 이메일/비밀번호 input에 `autoComplete` 속성 명시 (서버/클라이언트 일관성)
+- **components/TrustBadge.tsx**: mounted 체크로 SSR/CSR 분리
+  * `useState` + `useEffect`로 클라이언트 마운트 감지
+  * mounted false 시 동일한 엘리먼트 타입(`<div>`) 반환으로 Hydration 보장
+  * `suppressHydrationWarning` 추가로 tooltip state 경고 억제
 - **app/layout.tsx**: `suppressHydrationWarning` 속성으로 테마 관련 경고 억제
 
 **4-7-8 호흡법 타이머 정확도 개선:**
@@ -63,6 +70,13 @@
   * 기존: `setInterval(1000)` 사용으로 부정확한 타이밍
   * 수정: `Date.now()` 기반 실시간 계산으로 정확한 4초-7초-8초 타이밍 구현
   * 50ms 주기로 업데이트하여 부드럽고 정확한 카운트다운 제공
+
+**테스트 결과:**
+- ✅ 모든 Hydration mismatch 오류 제거 (ThemeToggle, LandingPage, TrustBadge)
+- ✅ 브라우저 콘솔 오류 0개 (React DevTools 권장 메시지만 표시)
+- ✅ 서버 로그 클린 (에러 없이 정상 컴파일)
+- ✅ 로그인/회원가입/구글 로그인/익명 체험 버튼 정상 작동
+- ✅ 모바일/데스크톱 반응형 레이아웃 정상 표시
 
 ### 2025-10-22: 프로덕션 완성도 최적화 및 경고 완전 제거
 - **iOS Safari STT 호환성 강화 및 PWA 지원**:

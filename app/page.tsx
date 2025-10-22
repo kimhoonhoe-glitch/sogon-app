@@ -228,7 +228,7 @@ export default function LandingPage() {
           </button>
         </div>
 
-        <div className="flex flex-col items-center gap-2 mt-6">
+        <div className="flex flex-col items-center gap-2 mt-6" suppressHydrationWarning>
           <TrustBadge variant="text" />
           <p className="text-center text-xs text-text/50 dark:text-white/50 px-4">
             마음지기는 의료 서비스가 아닙니다.<br />
