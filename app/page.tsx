@@ -15,7 +15,17 @@ export default function LandingPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [isAnonymous, setIsAnonymous] = useState(false)
-  const { register, handleSubmit } = useForm<LoginForm>()
+  const [rememberEmail, setRememberEmail] = useState(false)
+  const { register, handleSubmit, setValue } = useForm<LoginForm>()
+
+  // 저장된 이메일 불러오기
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('saved_email')
+    if (savedEmail) {
+      setValue('email', savedEmail)
+      setRememberEmail(true)
+    }
+  }, [setValue])
 
   // 자동 리다이렉트 제거 - 사용자가 버튼을 눌러야만 이동
 
@@ -28,6 +38,13 @@ export default function LandingPage() {
     })
     
     if (result?.ok) {
+      // 이메일 저장 체크 시 localStorage에 저장
+      if (rememberEmail) {
+        localStorage.setItem('saved_email', data.email)
+      } else {
+        localStorage.removeItem('saved_email')
+      }
+      
       const welcomeCompleted = localStorage.getItem('welcome_completed')
       if (welcomeCompleted) {
         router.push('/chat')
@@ -48,6 +65,13 @@ export default function LandingPage() {
     })
     
     if (result?.ok) {
+      // 이메일 저장 체크 시 localStorage에 저장
+      if (rememberEmail) {
+        localStorage.setItem('saved_email', data.email)
+      } else {
+        localStorage.removeItem('saved_email')
+      }
+      
       router.push('/welcome')
     } else {
       alert('회원가입에 실패했습니다. 이미 존재하는 이메일일 수 있습니다.')
@@ -111,6 +135,21 @@ export default function LandingPage() {
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-background dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                 placeholder="••••••••"
               />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="rememberEmail"
+                checked={rememberEmail}
+                onChange={(e) => setRememberEmail(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-2"
+              />
+              <label 
+                htmlFor="rememberEmail" 
+                className="text-sm text-text dark:text-white cursor-pointer"
+              >
+                이메일 주소 저장
+              </label>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button
