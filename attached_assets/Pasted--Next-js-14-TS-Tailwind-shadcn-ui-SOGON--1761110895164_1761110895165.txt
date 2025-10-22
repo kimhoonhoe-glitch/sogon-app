@@ -1,0 +1,127 @@
+당신은 Next.js 14 + TS + Tailwind + shadcn/ui 기반의 “소곤(SOGON)” 프로젝트를 디버깅/개선합니다. 질문 없이 즉시 적용하고, 동작 가능한 코드를 출력/수정하세요.
+
+목표
+- 새 탭/배포 URL 빈 화면 제거(에러 바운더리 + 게스트 모드 + 데모 모드 가드).
+- 로그인 강제 완전 제거(게스트 기본). 회원가입/구글OAuth 숨김(추후 설정 시 On).
+- “로컬 저장·서버 미저장” 신뢰 배지 3곳(헤더/입력 하단/결과 카드) 추가.
+- STT/TTS 안정화: 반이중(녹음 중 TTS 자동 중지), 확정 결과만 반영, 중복 단어/문장 제거, 길게 말할 때 끊김 방지(자동 재시작).
+- 답변 품질 향상: 공감 톤 가이드 + few-shot 3개 + 길이/반복 제약 + 금지어·금지행동 필터.
+- “애인 모드” → ‘다정한 톤’으로 이름 변경, 오프라인 만남/금전/신체접촉 암시 금지 + 반복 패턴 방지.
+- 모든 기록 localStorage에만 저장. 서버 로그에 사용자 텍스트/결과 저장 금지.
+
+1) 환경 변수/설정
+- .env.example 업데이트:
+  NEXT_PUBLIC_APP_NAME=소곤 SOGON
+  NEXT_PUBLIC_REQUIRE_AUTH=false
+  NEXT_PUBLIC_DEMO_MODE=true  # 키 없으면 데모 응답
+  OPENAI_API_KEY=
+- README 최상단에 굵게:
+  - “게스트 모드: 로그인 없이 사용”
+  - “기록은 로컬에만 저장, 서버 미저장”
+  - “iOS 사파리: 웹 음성인식(STT) 미지원(텍스트/듣기만 가능)”
+  - “오류 시 새로고침 후 재시도”
+
+2) 게스트 모드/빈 화면 가드
+- components/GuestGate.tsx: NEXT_PUBLIC_REQUIRE_AUTH !== 'true' 이면 children 렌더. true면 /login 유도와 “게스트로 계속하기” 버튼 제공.
+- app/layout.tsx에서 <GuestGate>{children}</GuestGate>로 감쌈.
+- components/ErrorBoundary.tsx 추가, layout에 적용. 오류 시 “잠시 오류가 발생했어요. 새로고침 해보세요” 메시지 + “홈으로” 버튼.
+- NextAuth 연동 코드가 있다면:
+  - 강제 signIn/redirect 제거
+  - 헤더의 로그인 메뉴는 “준비중” 뱃지로 대체
+
+3) 신뢰 배지/카피
+- components/TrustBadge.tsx:
+  - “로컬 저장 · 서버 미저장” 배지 + 툴팁(“분석 시에만 AI로 전송, 기록은 서버에 저장하지 않습니다. 언제든 삭제 가능”).
+- 배치:
+  - 헤더 우측
+  - app/page.tsx 입력창 아래
+  - 결과 카드 하단(‘이 기록은 내 기기에만 저장됩니다’)
+
+4) STT/TTS 개선(반이중 + 중복/끊김 방지)
+- lib/speech.ts:
+  - startRecording: 
+    - TTS 재생 중이면 speechSynthesis.cancel()
+    - Web Speech API Recognition: lang 'ko-KR', interimResults=true, continuous=true, maxAlternatives=1
+    - onresult에서 result.isFinal인 항목만 누적(확정 결과만 setInput에 추가, interim은 무시)
+    - onend에서 isRecording=false + 자동 재시작(길게 말할 때 끊김 방지): setTimeout(500, startRecording)
+    - 타임아웃 60초로 연장
+  - stopRecording: recognition.stop()
+  - speak(text, voiceHint): 재생 전 speechSynthesis.cancel(); rate=0.95, pitch=1.05
+  - onerror: “인식 오류가 발생했어요. 조용한 곳에서 다시 시도해보세요” 토스트 + 재시작 버튼
+- 반이중 가드: 녹음 시작 시 TTS 자동 중지, 녹음 중엔 듣기 버튼 비활성(그레이아웃)
+
+5) 반복/오타 전후처리
+- lib/sanitize.ts:
+  export function sanitizeInput(s: string): string {
+    let t = s.trim();
+    t = t.replace(/([가-힣A-Za-z])\1{2,}/g, '$1$1');         // 같은 글자 3회↑ 축약
+    t = t.replace(/([가-힣]{2,6})\1+/g, '$1');               // 단위어 반복(오늘은오늘은) 축약
+    t = t.replace(/\s{2,}/g, ' ');
+    return t;
+  }
+  export function sanitizeOutput(s: string): string {
+    let t = s.replace(/([가-힣A-Za-z])\1{2,}/g, '$1$1')
+             .replace(/([가-힣]{2,6})\1+/g, '$1')
+             .replace(/\s{2,}/g, ' ');
+    // 연속 동일 문장 제거
+    const lines = t.split(/[.!?]\s*/).filter(Boolean);
+    const uniq = lines.filter((v, i, a) => a.indexOf(v) === i);
+    return uniq.join('. ') + (t.endsWith('.') ? '' : '.');
+  }
+
+6) 금지어/현실불가 제안 필터
+- lib/moderate.ts:
+  const bannedPhrases = ['안아줄게', '술 한잔', '만나서', '데이트', '밥 사줄게', '계좌', '송금', '상품권', '안아줄게요', '포옹', '키스'];
+  export function guardrails(text: string): string {
+    let t = text;
+    for (const p of bannedPhrases) {
+      const re = new RegExp(p, 'gi');
+      t = t.replace(re, (m) => {
+        switch (m.toLowerCase()) {
+          case '안아줄게': case '안아줄게요': return '따뜻한 마음을 보낼게요';
+          case '술 한잔': return '차 한 잔 마시며 쉬는 건 어때요';
+          case '만나서': case '데이트': return '지금 여기서부터 시작해볼까요';
+          case '밥 사줄게': return '좋아하는 음식 생각하며 휴식 취해요';
+          default: return '현실적인 위로로 바꿀게요';
+        }
+      });
+    }
+    return t;
+  }
+
+7) /api/analyze 품질 튜닝
+- 입력 text에 sanitizeInput 적용
+- 안전 감지 룰 먼저(자해/타해/학대/금전유도 등). 위기면 {crisis:true,reason} 반환
+- OpenAI 호출 파라미터: temperature 0.7, frequency_penalty 0.8, presence_penalty 0.2, max_tokens 380
+- 스타일(지원 톤) 적용:
+  - 요청 body: { text, styleId }
+  - lib/supportStyles.ts의 systemAddendum을 system 프롬프트에 append
+- 공통 system 프롬프트(한국어):
+  “너는 공감에 능한 한국어 디지털 코치다. 의료·진단·치료 조언 금지. 위기 신호는 도움 링크를 권하고 다른 조언을 중단한다. 사용자를 비난하거나 평가하지 않는다. 각 문장은 20자 내외, 총 2~3문장. 반복 금지. 1분 안에 끝나는 아주 작은 루틴 1개만 제안. 오프라인 만남/금전/신체접촉/연애·성적 표현/역할극 금지. 이전 대화와 다른 표현으로 다양하게 응답.”
+- few-shot 3개 포함(하나는 직장, 하나는 불면, 하나는 반복 테스트):
+  예시1 입력: “회의에서 혼나서 하루 종일 위축됐어.”
+  예시1 출력(JSON): { "emotions":["슬픔","스트레스"], "advice":["많이 속상하셨겠어요. 그 상황에서 누구라도 작아질 수 있어요.","지금은 자신을 탓하지 말고, 몸을 편하게 하는 데 집중해봐요."], "microRoutine":{"title":"4-7-8 호흡 3회","steps":["들숨 4초","멈춤 7초","날숨 8초","세 번 반복"]}, "tags":["직장","호흡"] }
+  예시2 입력: “자려고 누우면 생각이 폭주해.”
+  예시2 출력(JSON): { "emotions":["불안"], "advice":["머릿속이 너무 바쁘셨겠어요.","지금 필요한 건 아주 짧은 쉬는 숨이에요."], "microRoutine":{"title":"30초 그라운딩","steps":["보이는 것 3개 말하기","손에 닿는 감각 느끼기","길게 내쉬기"]}, "tags":["수면","그라운딩"] }
+  예시3 입력: “오늘은오늘은오늘은 정말 피곤해.”
+  예시3 출력(JSON): { "emotions":["피로"], "advice":["정말 지치신 것 같아요.","짧은 휴식이 필요할 때예요."], "microRoutine":{"title":"5분 스트레칭","steps":["어깨 돌리기","목 기울이기","깊게 숨쉬기"]}, "tags":["피로","휴식"] }
+- 모델 응답 JSON 파싱 후 advice/steps에 sanitizeOutput → guardrails 순으로 적용
+- OpenAI 키 미설정 시 데모 JSON 반환(README 안내)
+- 서버 로그에 입력/출력 console.log 금지
+
+8) 홈/UI 수정
+- 입력창 아래 소제목:
+  “기록은 내 기기에만 저장됩니다. 분석 시에만 AI로 전송돼요.”
+- 결과 카드:
+  - 듣기(TTS), 저장, 다시 생성, 이 기록만 삭제
+  - 하단에 TrustBadge 텍스트형(‘로컬 저장 · 서버 미저장’)
+- 스타일 선택(지원 톤)에서 ‘애인’ → ‘다정한 톤’으로 이름 변경. 설명: “따뜻하지만 현실적인 위로, 오프라인 만남/금전 제안 금지”
+
+9) 테스트 유틸/가이드
+- components/QAQuickPanel.tsx: 개발자용 미니 패널(토글 가능)
+  - “STT 테스트”, “반복 제거 테스트”, “위기 감지 테스트” 버튼
+- 완료 후 콘솔에 체크리스트 출력:
+  - 데스크톱/안드로이드: STT 확정 결과만 반영되는지, 길게 말할 때 끊김 없이 이어지는지
+  - iOS 사파리: STT 비활성 안내가 뜨는지(TTS는 정상)
+  - “오늘은오늘은” 유형이 제거되는지
+  - 다정한 톤에서 ‘안아줄게/만나자/술’ 표현이 우회 없이 제거/대체되는지
