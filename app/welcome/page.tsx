@@ -14,7 +14,13 @@ export default function WelcomePage() {
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    
+    // 이미 welcome을 본 사용자는 채팅으로 자동 이동
+    const welcomeCompleted = localStorage.getItem('welcome_completed')
+    if (welcomeCompleted) {
+      router.push('/chat')
+    }
+  }, [router])
 
   useEffect(() => {
     if (!showBreathing) return
