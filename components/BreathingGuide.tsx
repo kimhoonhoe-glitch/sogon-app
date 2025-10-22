@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 export default function BreathingGuide({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale')
   const [count, setCount] = useState(0)
   const [timer, setTimer] = useState(4)
+  const startTimeRef = useRef<number>(0)
 
   // 4-7-8 호흡법 타이밍
   const phaseDurations = {
@@ -28,35 +29,35 @@ export default function BreathingGuide({ onComplete }: { onComplete: () => void 
 
     const duration = phaseDurations[phase]
     const totalSeconds = phaseTimers[phase]
+    startTimeRef.current = Date.now()
     
-    // 카운트다운 타이머
-    const countdownInterval = setInterval(() => {
-      setTimer(prev => {
-        if (prev <= 1) {
-          return phaseTimers[phase]
+    // 실제 시간 기반 타이머 업데이트
+    const updateTimer = () => {
+      const elapsed = Date.now() - startTimeRef.current
+      const remaining = Math.max(0, duration - elapsed)
+      const remainingSeconds = Math.ceil(remaining / 1000)
+      
+      setTimer(remainingSeconds)
+      
+      if (remaining <= 0) {
+        if (phase === 'inhale') {
+          setPhase('hold')
+          setTimer(7)
+        } else if (phase === 'hold') {
+          setPhase('exhale')
+          setTimer(8)
+        } else {
+          setPhase('inhale')
+          setTimer(4)
+          setCount(count + 1)
         }
-        return prev - 1
-      })
-    }, 1000)
-
-    // 페이즈 전환 타이머
-    const phaseTimer = setTimeout(() => {
-      if (phase === 'inhale') {
-        setPhase('hold')
-        setTimer(7)
-      } else if (phase === 'hold') {
-        setPhase('exhale')
-        setTimer(8)
-      } else {
-        setPhase('inhale')
-        setTimer(4)
-        setCount(count + 1)
       }
-    }, duration)
+    }
+
+    const interval = setInterval(updateTimer, 50)
 
     return () => {
-      clearTimeout(phaseTimer)
-      clearInterval(countdownInterval)
+      clearInterval(interval)
     }
   }, [phase, count, onComplete])
 
