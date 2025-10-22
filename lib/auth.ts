@@ -13,42 +13,57 @@ const providers: any[] = [
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.log('Missing credentials')
+            return null
+          }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        })
+          console.log('Attempting login for:', credentials.email)
 
-        if (!user) {
-          const hashedPassword = await bcrypt.hash(credentials.password, 10)
-          const newUser = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              name: credentials.email.split('@')[0],
-              password: hashedPassword,
-              subscription: {
-                create: {
-                  status: 'free',
-                  plan: 'free',
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+          })
+
+          if (!user) {
+            console.log('User not found, creating new user')
+            const hashedPassword = await bcrypt.hash(credentials.password, 10)
+            const newUser = await prisma.user.create({
+              data: {
+                email: credentials.email,
+                name: credentials.email.split('@')[0],
+                password: hashedPassword,
+                subscription: {
+                  create: {
+                    status: 'free',
+                    plan: 'free',
+                  },
                 },
               },
-            },
-          })
-          return newUser
-        }
+            })
+            console.log('New user created:', newUser.id)
+            return newUser
+          }
 
-        if (!user.password) {
+          console.log('User found:', user.id)
+
+          if (!user.password) {
+            console.log('User has no password')
+            return null
+          }
+
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+          if (!isPasswordValid) {
+            console.log('Invalid password')
+            return null
+          }
+
+          console.log('Login successful')
+          return user
+        } catch (error) {
+          console.error('Auth error:', error)
           return null
         }
-
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return user
       },
     }),
 ]
