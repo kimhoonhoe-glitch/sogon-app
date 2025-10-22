@@ -1,0 +1,41 @@
+당신은 Next.js 14 + TS 기반의 “소곤” 프로젝트를 개선합니다. 질문 없이 적용하세요.
+
+목표
+- STT(음성 입력) 기기/브라우저 호환성 강화: iOS Safari 미지원 안내, 권한 팝업 가드, 크로스 브라우저 지원.
+- 타인 공유 시 세션/권한 문제 해결: PWA 설치 유도 + 오프라인 캐시.
+- 오류 시 친절 안내: “iOS는 텍스트 추천” 토스트 + 재시도 버튼.
+
+1) lib/speech.ts 개선
+- startRecording():
+  - 브라우저 감지: if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) { showToast('iOS Safari에서는 음성 입력이 지원되지 않아요. 텍스트로 써보세요!'); return; }
+  - 권한 확인: if (!('webkitSpeechRecognition' in window)) { showToast('이 브라우저는 음성 입력을 지원하지 않아요. Chrome 추천!'); return; }
+  - recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  - recognition.lang = 'ko-KR';
+  - recognition.continuous = true;
+  - recognition.interimResults = false;  // 임시 결과 무시, 확정만
+  - recognition.onstart = () => showToast('말해주세요. 끝나면 자동으로 멈춥니다.');
+  - recognition.onerror = (e) => {
+    if (e.error === 'not-allowed') showToast('마이크 권한을 허용해주세요. 브라우저 설정 > 사이트 권한 확인!');
+    else showToast('인식 오류예요. 조용한 곳에서 다시 시도해보세요.');
+    // 재시작 버튼 토스트
+  };
+  - recognition.onend = () => { isRecording = false; if (transcript.length < 10) showToast('짧은 입력이에요. 더 말해보세요!'); };
+  - onresult: finalTranscript만 누적 (transcript += event.results[event.results.length - 1][0].transcript; setInput(transcript);)
+
+2) UI 안내 추가
+- app/page.tsx 입력 섹션:
+  - 마이크 버튼 옆에 <Tooltip> iOS: 텍스트 추천 | 안드로이드/Chrome: 음성 OK </Tooltip>
+  - 버튼 클릭 시 권한 팝업 안 뜨면: showToast('마이크 권한을 허용해주세요. 브라우저 설정에서 소곤을 허용하세요!');
+
+3) PWA 설치 유도
+- public/manifest.json 업데이트: name: "소곤 - 마음 치유 앱", short_name: "소곤", icons: [192x192, 512x512 PNG 추가 필요]
+- app/layout.tsx에 PWA 설치 배너: useEffect(() => { if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js'); if (window.matchMedia('(display-mode: standalone)').matches === false) showInstallPrompt(); });
+
+4) 크로스 브라우저 호환
+- polyfill 추가: if (!window.SpeechRecognition) window.SpeechRecognition = window.webkitSpeechRecognition;
+- Firefox/Edge 감지: userAgent 체크 후 'webkitSpeechRecognition' 폴백.
+
+5) 테스트 가이드 출력
+- 콘솔: "STT 테스트: iOS 미지원 안내 뜨는지, 안드로이드에서 권한 팝업/인식 되는지 확인하세요."
+
+완료 후, 새 탭에서 테스트하세요.

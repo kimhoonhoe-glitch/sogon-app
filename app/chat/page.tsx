@@ -10,9 +10,10 @@ import ThemeToggle from '@/components/ThemeToggle'
 import PersonaSelector from '@/components/PersonaSelector'
 import { EMOTION_CATEGORIES } from '@/lib/emotions'
 import { Persona } from '@/lib/personas'
-import { createRecognition, useSpeechRecognition, stopSpeaking } from '@/lib/speech-recognition'
+import { createRecognition, checkSTTSupport, stopSpeaking } from '@/lib/speech-recognition'
 import TrustBadge from '@/components/TrustBadge'
 import { sanitizeInput } from '@/lib/sanitize'
+import { useToast } from '@/components/Toast'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -26,6 +27,7 @@ export default function ChatPage() {
   const router = useRouter()
   const isAnonymous = searchParams.get('anonymous') === 'true'
   const skipBreathing = searchParams.get('skipBreathing') === 'true'
+  const { showToast, ToastContainer } = useToast()
   
   const [showBreathing, setShowBreathing] = useState(!skipBreathing)
   const [messages, setMessages] = useState<Message[]>([])
@@ -35,7 +37,7 @@ export default function ChatPage() {
   const [showCrisis, setShowCrisis] = useState(false)
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
   const [isListening, setIsListening] = useState(false)
-  const [recognitionSupported, setRecognitionSupported] = useState(true)
+  const [sttSupport, setSTTSupport] = useState<{ supported: boolean; message?: string }>({ supported: true })
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
   const shouldRestartRef = useRef(false)
@@ -45,9 +47,11 @@ export default function ChatPage() {
   }, [messages])
 
   useEffect(() => {
-    const SpeechRecognition = useSpeechRecognition()
-    if (!SpeechRecognition) {
-      setRecognitionSupported(false)
+    // STT 지원 여부 확인
+    const support = checkSTTSupport()
+    setSTTSupport(support)
+    if (!support.supported && support.message) {
+      console.log('⚠️ STT 미지원:', support.message)
     }
   }, [])
 
@@ -152,6 +156,12 @@ export default function ChatPage() {
   }
 
   const startRecording = () => {
+    // STT 지원 확인
+    if (!sttSupport.supported) {
+      showToast(sttSupport.message || '음성 입력이 지원되지 않습니다.', 'warning')
+      return
+    }
+
     // 반이중: TTS 재생 중이면 중지
     stopSpeaking()
     
@@ -173,10 +183,12 @@ export default function ChatPage() {
           // 복구 불가능한 에러: 완전 중지
           shouldRestartRef.current = false
           setIsListening(false)
-          alert('마이크 권한이 필요합니다. 브라우저 설정에서 마이크 권한을 허용해주세요.')
+          showToast('마이크 권한을 허용해주세요. 브라우저 설정 > 사이트 권한을 확인하세요!', 'error')
+        } else if (error === 'network') {
+          showToast('네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.', 'error')
         } else {
           // 기타 에러: 자동 재시작이 처리함
-          console.warn('음성 인식 오류:', error)
+          showToast('인식 오류예요. 조용한 곳에서 다시 시도해보세요.', 'warning')
         }
       },
       () => {
@@ -185,7 +197,12 @@ export default function ChatPage() {
           setIsListening(false)
         }
       },
-      { autoRestart: true } // 자동 재시작 활성화
+      { 
+        autoRestart: true, // 자동 재시작 활성화
+        onStart: () => {
+          showToast('말해주세요. 끝나면 자동으로 멈춥니다.', 'info')
+        }
+      }
     )
 
     if (recognition) {
@@ -197,7 +214,7 @@ export default function ChatPage() {
       } catch (error) {
         console.error('Failed to start recognition:', error)
         shouldRestartRef.current = false
-        alert('음성 인식을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.')
+        showToast('음성 인식을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.', 'error')
       }
     }
   }
@@ -214,11 +231,6 @@ export default function ChatPage() {
   }
 
   const toggleVoiceInput = () => {
-    if (!recognitionSupported) {
-      alert('음성 인식이 지원되지 않는 브라우저입니다. Chrome, Edge 등을 사용해주세요.')
-      return
-    }
-
     if (isListening) {
       stopRecording()
     } else {
@@ -232,7 +244,9 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex flex-col">
+    <>
+      <ToastContainer />
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex flex-col">
       <header className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
         <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
           <button 
@@ -332,20 +346,22 @@ export default function ChatPage() {
                 rows={2}
                 disabled={isLoading}
               />
-              {recognitionSupported && (
-                <button
-                  onClick={toggleVoiceInput}
-                  disabled={isLoading}
-                  className={`absolute right-3 top-3 p-2 rounded-lg transition-all ${
-                    isListening 
-                      ? 'bg-red-500 text-white animate-pulse' 
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  title={isListening ? '녹음 중지' : '음성 입력'}
-                >
-                  {isListening ? '⏸️' : '🎤'}
-                </button>
-              )}
+              <button
+                onClick={toggleVoiceInput}
+                disabled={isLoading || !sttSupport.supported}
+                className={`absolute right-3 top-3 p-2 rounded-lg transition-all ${
+                  isListening 
+                    ? 'bg-red-500 text-white animate-pulse' 
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                title={
+                  !sttSupport.supported 
+                    ? 'iOS Safari에서는 텍스트로 입력해주세요' 
+                    : isListening ? '녹음 중지' : '음성 입력 (길게 말해보세요)'
+                }
+              >
+                {isListening ? '⏸️' : '🎤'}
+              </button>
             </div>
             <button
               onClick={sendMessage}
@@ -358,5 +374,6 @@ export default function ChatPage() {
         </div>
       </footer>
     </div>
+    </>
   )
 }
