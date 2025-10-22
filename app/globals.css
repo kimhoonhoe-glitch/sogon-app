@@ -1,23 +1,22 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #B4A7D6;
+  --color-secondary: #F5E6D3;
+  --color-accent: #A8E6CF;
+  --color-background: #FFFEF7;
+  --color-text: #2D3436;
+}
 
 @layer base {
-  :root {
-    --color-primary: #B4A7D6;
-    --color-secondary: #F5E6D3;
-    --color-accent: #A8E6CF;
-    --color-background: #FFFEF7;
-    --color-text: #2D3436;
-  }
-
   .dark {
     --color-background: #1a1a1a;
     --color-text: #f5f5f5;
   }
 
   body {
-    @apply bg-background text-text;
+    background-color: var(--color-background);
+    color: var(--color-text);
     font-feature-settings: "rlig" 1, "calt" 1;
     overscroll-behavior: none;
   }
