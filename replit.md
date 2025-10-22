@@ -46,3 +46,28 @@
 - **Chart.js / react-chartjs-2**: 대시보드에서 감정 추이 라인 차트 등 데이터 시각화를 위해 사용됩니다.
 - **Tailwind CSS**: 스타일링을 위한 유틸리티 우선 CSS 프레임워크입니다.
 - **Pretendard Variable font**: 폰트 적용을 위해 사용됩니다.
+
+## 최근 변경사항
+
+### 2025-10-22: iOS Safari STT 호환성 강화 및 PWA 지원
+- **iOS Safari 음성 입력 미지원 감지 및 안내**:
+  * lib/speech-recognition.ts: checkSTTSupport() 함수로 브라우저별 지원 여부 확인
+  * iOS Safari / macOS Safari 감지 시 자동으로 텍스트 입력 권장 토스트 표시
+  * 마이크 버튼 tooltip에 "iOS Safari에서는 텍스트로 입력해주세요" 안내
+  * 크로스 브라우저 polyfill: SpeechRecognition = webkitSpeechRecognition
+- **토스트 알림 시스템 구축** (components/Toast.tsx):
+  * useToast hook으로 간편한 알림 표시
+  * 4가지 타입: info, error, success, warning
+  * 권한 거부 시: "마이크 권한을 허용해주세요. 브라우저 설정 > 사이트 권한 확인!"
+  * 네트워크 오류 시: "네트워크 오류가 발생했습니다"
+  * 인식 시작 시: "말해주세요. 끝나면 자동으로 멈춥니다"
+- **PWA (Progressive Web App) 지원**:
+  * public/manifest.json: 홈 화면 추가 가능
+  * public/sw.js: Service Worker로 오프라인 캐시
+  * components/PWARegister.tsx: 자동 설치 프롬프트 감지
+  * app/layout.tsx: PWA meta 태그 및 viewport 설정
+- **테스트 결과**:
+  * ✅ Service Worker 등록 성공 (콘솔 로그 확인)
+  * ✅ iOS Safari에서 음성 버튼 비활성화 및 tooltip 표시
+  * ✅ Chrome/Edge에서 음성 입력 정상 작동
+  * ⚠️ 주의: PWA 아이콘 파일 (icon-192.png, icon-512.png) 추가 필요
