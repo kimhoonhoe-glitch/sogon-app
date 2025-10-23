@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { generateEmpathyResponse, analyzeEmotion, detectCrisis } from '@/lib/ai'
+//import { generateEmpathyResponse, analyzeEmotion, detectCrisis } from '@/lib/ai'
 import { FREE_DAILY_LIMIT } from '@/lib/stripe'
 import { sanitizeInput } from '@/lib/sanitize'
 
@@ -11,7 +11,7 @@ interface ChatMessage {
   content: string
 }
 
-export async function POST(req: NextRequest) {
+  /* export async function POST(req: NextRequest) {
   try {
     // 데모 모드: API 키 없으면 샘플 응답 반환
     const hasApiKey = !!(process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY)
@@ -171,4 +171,4 @@ export async function POST(req: NextRequest) {
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     )
   }
-}
+} **/***
