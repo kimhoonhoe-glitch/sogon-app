@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { generateEmpathyResponse, analyzeEmotion, detectCrisis } from '@/lib/ai''
+import { generateEmpathyResponse, analyzeEmotion, detectCrisis } from '@/lib/ai'
 import { FREE_DAILY_LIMIT } from '@/lib/stripe'
 import { sanitizeInput } from '@/lib/sanitize'
 
