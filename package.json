@@ -36,7 +36,6 @@
     "stripe": "^19.1.0",
     "tailwindcss": "^4.1.15",
     "typescript": "^5.9.3",
-    "zod": "^4.1.12"
     },
    "overrides": {
      "zod": "^3.20.0"
