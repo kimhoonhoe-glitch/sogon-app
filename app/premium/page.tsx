@@ -8,21 +8,25 @@ import ThemeToggle from '@/components/ThemeToggle'
 export default function PremiumPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams() // Next.js recommends moving this hook call to inside an effect or component below the "use client" boundary.
+
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
     const handleSuccess = async () => {
-      const sessionId = searchParams.get('session_id')
-      if (searchParams.get('success') && sessionId && session?.user?.id) {
+      // searchParams 사용은 useEffect 내에서 안전합니다.
+      const sessionId = searchParams?.get('session_id') // Null check added for safety
+
+      // Changed to handle null check from Vercel's side
+      if (searchParams?.get('success') && sessionId && session?.user?.id) {
         try {
           const response = await fetch('/api/subscription/upgrade', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sessionId }),
           })
-          
+
           if (response.ok) {
             setMessage('구독이 완료되었습니다! 이제 무제한으로 이용하실 수 있어요.')
           } else {
@@ -31,13 +35,16 @@ export default function PremiumPage() {
         } catch (error) {
           setMessage('구독 활성화 중 오류가 발생했습니다.')
         }
-      } else if (searchParams.get('canceled')) {
+      } else if (searchParams?.get('canceled')) { // Null check added for safety
         setMessage('구독이 취소되었습니다.')
       }
     }
-    
-    handleSuccess()
-  }, [searchParams, session])
+
+    // Only run this effect after the component has mounted and session is loaded
+    if (status !== 'loading') {
+      handleSuccess()
+    }
+  }, [searchParams, session, status]) // Added status to dependency array
 
   const handleUpgrade = async () => {
     if (status !== 'authenticated') {
@@ -51,7 +58,7 @@ export default function PremiumPage() {
         method: 'POST',
       })
       const data = await response.json()
-      
+
       if (data.url) {
         window.location.href = data.url
       }
