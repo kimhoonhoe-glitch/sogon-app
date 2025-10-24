@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Session ID required' }, { status: 400 })
     }
 
-    const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId, {
+    const checkoutSession = await stripe!.checkout.sessions.retrieve(sessionId, {
       expand: ['subscription'],
     })
 
