@@ -112,7 +112,7 @@ export default function EmotionLineChart({ data }: EmotionLineChartProps) {
         },
         titleFont: {
           size: 14,
-          weight: 'bold',
+          weight: 700,
           family: 'Pretendard Variable, sans-serif',
         },
         displayColors: true,
