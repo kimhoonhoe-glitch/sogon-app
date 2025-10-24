@@ -10,10 +10,7 @@ import ThemeToggle from '@/components/ThemeToggle'
 import PersonaSelector from '@/components/PersonaSelector'
 import { EMOTION_CATEGORIES } from '@/lib/emotions'
 import { Persona } from '@/lib/personas'
-import { createRecognition, checkSTTSupport, stopSpeaking } from '@/lib/speech-recognition'
-import TrustBadge from '@/components/TrustBadge'
-import { sanitizeInput } from '@/lib/sanitize'
-import { useToast } from '@/components/Toast'
+import { createRecognition, useSpeechRecognition } from '@/lib/speech-recognition'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -27,7 +24,6 @@ export default function ChatPage() {
   const router = useRouter()
   const isAnonymous = searchParams.get('anonymous') === 'true'
   const skipBreathing = searchParams.get('skipBreathing') === 'true'
-  const { showToast, ToastContainer } = useToast()
   
   const [showBreathing, setShowBreathing] = useState(!skipBreathing)
   const [messages, setMessages] = useState<Message[]>([])
@@ -37,21 +33,18 @@ export default function ChatPage() {
   const [showCrisis, setShowCrisis] = useState(false)
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
   const [isListening, setIsListening] = useState(false)
-  const [sttSupport, setSTTSupport] = useState<{ supported: boolean; message?: string }>({ supported: true })
+  const [recognitionSupported, setRecognitionSupported] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
-  const shouldRestartRef = useRef(false)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
   useEffect(() => {
-    // STT 지원 여부 확인
-    const support = checkSTTSupport()
-    setSTTSupport(support)
-    if (!support.supported && support.message) {
-      console.log('⚠️ STT 미지원:', support.message)
+    const SpeechRecognition = useSpeechRecognition()
+    if (!SpeechRecognition) {
+      setRecognitionSupported(false)
     }
   }, [])
 
@@ -155,88 +148,37 @@ export default function ChatPage() {
     }
   }
 
-  const startRecording = () => {
-    // STT 지원 확인
-    if (!sttSupport.supported) {
-      showToast(sttSupport.message || '음성 입력이 지원되지 않습니다.', 'warning')
+  const toggleVoiceInput = () => {
+    if (!recognitionSupported) {
+      alert('음성 인식이 지원되지 않는 브라우저입니다. Chrome, Edge 등을 사용해주세요.')
       return
     }
 
-    // 반이중: TTS 재생 중이면 중지
-    stopSpeaking()
-    
-    const recognition = createRecognition(
-      (transcript, isFinal) => {
-        // 확정 결과만 입력창에 추가
-        if (isFinal) {
-          const cleaned = sanitizeInput(transcript)
-          setInput(prev => {
-            const combined = prev + ' ' + cleaned
-            return sanitizeInput(combined)
-          })
-        }
-      },
-      (error) => {
-        console.error('Speech recognition error:', typeof error === 'string' ? error.slice(0, 30) : error)
-        
-        if (typeof error === 'string' && error.includes('권한')) {
-          // 복구 불가능한 에러: 완전 중지
-          shouldRestartRef.current = false
+    if (isListening) {
+      recognitionRef.current?.stop()
+      setIsListening(false)
+    } else {
+      const recognition = createRecognition(
+        (transcript) => {
+          setInput(prev => prev + transcript)
+        },
+        (error) => {
+          console.error('Speech recognition error:', error)
           setIsListening(false)
-          showToast(error, 'error')
-        } else if (typeof error === 'string' && error.includes('인터넷')) {
-          showToast(error, 'error')
-        } else if (typeof error === 'string') {
-          showToast(error, 'warning')
-        } else {
-          // 기타 에러: 자동 재시작이 처리함
-          showToast('인식 오류예요. 조용한 곳에서 다시 시도해보세요.', 'warning')
-        }
-      },
-      () => {
-        // onEnd는 자동 재시작이 처리함
-        if (!shouldRestartRef.current) {
+          if (error === 'not-allowed') {
+            alert('마이크 권한이 필요합니다. 브라우저 설정에서 마이크 권한을 허용해주세요.')
+          }
+        },
+        () => {
           setIsListening(false)
         }
-      },
-      { 
-        autoRestart: true, // 자동 재시작 활성화
-        onStart: () => {
-          showToast('말해주세요. 끝나면 자동으로 멈춥니다.', 'info')
-        }
-      }
-    )
+      )
 
-    if (recognition) {
-      recognitionRef.current = recognition
-      try {
+      if (recognition) {
+        recognitionRef.current = recognition
         recognition.start()
         setIsListening(true)
-        shouldRestartRef.current = true
-      } catch (error) {
-        console.error('Failed to start recognition:', error)
-        shouldRestartRef.current = false
-        showToast('음성 인식을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.', 'error')
       }
-    }
-  }
-
-  const stopRecording = () => {
-    shouldRestartRef.current = false
-    // cleanup을 호출해서 자동 재시작 중지
-    if (recognitionRef.current && (recognitionRef.current as any).cleanup) {
-      (recognitionRef.current as any).cleanup()
-    } else {
-      recognitionRef.current?.stop()
-    }
-    setIsListening(false)
-  }
-
-  const toggleVoiceInput = () => {
-    if (isListening) {
-      stopRecording()
-    } else {
-      startRecording()
     }
   }
 
@@ -246,17 +188,15 @@ export default function ChatPage() {
   }
 
   return (
-    <>
-      <ToastContainer />
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex flex-col pt-16">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 p-3 md:p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex flex-col">
+      <header className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
         <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
           <button 
             onClick={() => router.push('/welcome')}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0 cursor-pointer"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0"
           >
-            <span className="text-2xl pointer-events-none">💙</span>
-            <div className="pointer-events-none">
+            <span className="text-2xl">💙</span>
+            <div>
               <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white leading-tight">소곤 SOGON</h1>
               <p className="text-xs text-text/60 dark:text-white/60 leading-tight">
                 {isAnonymous ? '익명 체험' : session?.user?.name || '게스트'}
@@ -264,32 +204,23 @@ export default function ChatPage() {
             </div>
           </button>
           <div className="flex items-center gap-2 flex-wrap justify-end">
-            <TrustBadge variant="badge" className="hidden sm:inline-block" />
             <PersonaSelector 
               onSelect={setSelectedPersona}
               initialPersona={selectedPersona?.id}
             />
             <button
               onClick={() => router.push('/dashboard')}
-              className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-1"
+              className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
             >
-              <span>📊</span>
-              <span className="hidden sm:inline">대시보드</span>
-            </button>
-            <button
-              onClick={() => router.push('/profile')}
-              className="px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-gray-800 text-text dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-1"
-            >
-              <span>👤</span>
-              <span className="hidden sm:inline">프로필</span>
+              대시보드
             </button>
             <ThemeToggle />
           </div>
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 pb-32">
-        <div className="w-full max-w-4xl mx-auto space-y-4">
+      <main className="flex-1 overflow-y-auto p-4">
+        <div className="max-w-4xl mx-auto space-y-4">
           {messages.length === 0 && (
             <div className="text-center py-12">
               <h2 className="text-2xl font-semibold text-text dark:text-white mb-4">
@@ -309,7 +240,7 @@ export default function ChatPage() {
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] sm:max-w-[80%] p-3 md:p-4 rounded-2xl overflow-hidden ${
+                className={`max-w-[80%] p-4 rounded-2xl ${
                   message.role === 'user'
                     ? 'bg-primary text-white'
                     : 'bg-white dark:bg-gray-800 text-text dark:text-white'
@@ -332,23 +263,20 @@ export default function ChatPage() {
         </div>
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 p-3 md:p-4">
-        <div className="w-full max-w-4xl mx-auto">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <TrustBadge variant="text" />
-          </div>
-          <div className="flex flex-col sm:flex-row gap-2">
+      <footer className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-2">
             <div className="flex-1 relative">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="무슨 일이 있었는지 편하게 얘기해주세요..."
-                className="w-full min-h-[60px] px-4 py-3 pr-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all overflow-hidden"
+                className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-text dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                 rows={2}
                 disabled={isLoading}
               />
-              {sttSupport.supported ? (
+              {recognitionSupported && (
                 <button
                   onClick={toggleVoiceInput}
                   disabled={isLoading}
@@ -357,20 +285,16 @@ export default function ChatPage() {
                       ? 'bg-red-500 text-white animate-pulse' 
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  title={isListening ? '녹음 중지' : '음성 입력 시작 (60초 타임아웃)'}
+                  title={isListening ? '녹음 중지' : '음성 입력'}
                 >
                   {isListening ? '⏸️' : '🎤'}
                 </button>
-              ) : (
-                <div className="absolute right-3 top-3 text-xs text-gray-400 dark:text-gray-500">
-                  iOS: 텍스트로 입력
-                </div>
               )}
             </div>
             <button
               onClick={sendMessage}
               disabled={isLoading || !input.trim()}
-              className="w-full sm:w-auto px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-semibold rounded-xl transition-all duration-500 hover:shadow-soft disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-semibold rounded-xl transition-all duration-500 hover:shadow-soft disabled:cursor-not-allowed"
             >
               전송
             </button>
@@ -378,6 +302,5 @@ export default function ChatPage() {
         </div>
       </footer>
     </div>
-    </>
   )
 }

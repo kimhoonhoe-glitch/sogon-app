@@ -58,25 +58,47 @@ export default function DashboardPage() {
     }
   }
 
-  if (status === 'unauthenticated' || (status !== 'loading' && !session?.user?.id)) {
-    router.replace('/')
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text/60 dark:text-white/60">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated' || !session?.user?.id) {
     return null
   }
 
-  const isLoading = status === 'loading' || loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text/60 dark:text-white/60">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
+
   const hasData = data && data.summary.totalConversations > 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900 pt-20">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 md:py-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 dark:from-gray-900 dark:via-gray-800/50 dark:to-gray-900">
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center gap-4">
-            <button 
-              onClick={() => router.push('/welcome')} 
-              className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
-            >
-              <span className="text-2xl pointer-events-none">💙</span>
-              <div className="pointer-events-none">
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button 
+                onClick={() => router.push('/welcome')} 
+                className="text-2xl hover:opacity-80 transition-opacity"
+              >
+                💙
+              </button>
+              <div>
                 <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white leading-tight">
                   감정 트래커
                 </h1>
@@ -84,7 +106,7 @@ export default function DashboardPage() {
                   {session?.user?.name || session?.user?.email || '익명'}님의 감정 기록
                 </p>
               </div>
-            </button>
+            </div>
             <div className="flex items-center gap-2 flex-wrap justify-end">
               <button
                 onClick={() => router.push('/chat')}
@@ -106,7 +128,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-3 justify-center mb-8 animate-fadeIn">
           <button
             onClick={() => setPeriod('week')}
@@ -130,14 +152,7 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {isLoading ? (
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-3xl shadow-2xl p-12 text-center border border-white/20 dark:border-gray-700/50">
-              <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-text/60 dark:text-white/60">감정 기록을 불러오는 중...</p>
-            </div>
-          </div>
-        ) : hasData ? (
+        {hasData ? (
           <div className="space-y-8">
             <div className="grid lg:grid-cols-2 gap-6">
               <div className="animate-slideInLeft">

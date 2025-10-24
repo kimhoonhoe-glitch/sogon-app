@@ -1,7 +1,5 @@
 import OpenAI from 'openai'
 import { EMOTION_CATEGORIES, WORKPLACE_CATEGORIES } from './emotions'
-import { guardrails } from './moderate'
-import { sanitizeOutput } from './sanitize'
 
 if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY && typeof window === 'undefined') {
   console.warn('⚠️ OpenAI AI Integrations is not set. AI features will not work.')
@@ -90,9 +88,8 @@ function sanitizeMessage(message: string): string {
     sanitized = '일상생활에서 스트레스와 어려움을 겪고 있습니다'
   }
   
-  // 사용자 데이터 로그 최소화
-  const preview = sanitized.slice(0, 15) + (sanitized.length > 15 ? '...' : '')
-  console.log('Sanitized preview:', preview)
+  console.log('Original message:', message)
+  console.log('Sanitized message:', sanitized)
   
   return sanitized
 }
@@ -112,33 +109,6 @@ export async function generateEmpathyResponse(
   // 페르소나 가져오기
   const { getPersona } = await import('./personas')
   const persona = getPersona(personaId)
-  
-  // 시간대별 적절한 격려 문구 결정 (한국 시간대 KST, UTC+9)
-  const now = new Date()
-  const kstOffset = 9 * 60 // 한국은 UTC+9
-  const kstTime = new Date(now.getTime() + kstOffset * 60 * 1000)
-  const hour = kstTime.getUTCHours()
-  
-  let timeContextGuidance = ''
-  
-  if (hour >= 6 && hour < 12) {
-    // 아침 (6~12시)
-    timeContextGuidance = `
-현재 시간: 아침/오전 (한국 시간 ${hour}시)
-적절한 마무리 표현: "오늘 하루 파이팅!", "좋은 하루 되길 바래", "오늘도 잘 해낼 거야", "힘내서 시작해보자"
-부적절한 표현: "오늘 하루 수고했어", "고생했어" (아직 하루가 시작 단계이므로 과거형 격려는 부자연스러움)`
-  } else if (hour >= 12 && hour < 18) {
-    // 점심/오후 (12~18시)
-    timeContextGuidance = `
-현재 시간: 점심/오후 (한국 시간 ${hour}시)
-적절한 마무리 표현: "오후도 힘내", "조금만 더 힘내", "조금만 더 버텨", "거의 다 왔어", "퇴근까지 파이팅"
-부적절한 표현: "오늘 하루 수고했어", "고생했어" (아직 하루가 끝나지 않았으므로 과거형 격려는 부자연스러움)`
-  } else {
-    // 저녁/밤 (18~6시)
-    timeContextGuidance = `
-현재 시간: 저녁/밤 (한국 시간 ${hour}시)
-적절한 마무리 표현: "오늘 하루 수고했어", "고생 많았어", "오늘도 잘 버텼어", "푹 쉬어", "잘 쉬고 내일 또 힘내자"`
-  }
   
   const baseSystemPrompt = `당신은 상대방의 진심 어린 친구이자 든든한 동반자입니다.
 
@@ -169,9 +139,7 @@ export async function generateEmpathyResponse(
 - 짧지만 마음이 담긴 문장 (3~6문장)
 - 상대방의 감정을 그대로 반영 ("힘들구나", "속상하구나", "불안하구나")
 - 구체적인 공감 표현 ("그 상황이면 나도 그랬을 거야", "충분히 그럴 수 있어")
-- **현재 시간대에 맞는** 따뜻한 마무리 격려
-
-${timeContextGuidance}
+- 따뜻한 마무리 ("오늘 하루 수고했어", "네가 대단해", "꼭 안아주고 싶다")
 
 절대 하지 말아야 할 것:
 - 감정을 평가하거나 판단하기
@@ -180,7 +148,10 @@ ${timeContextGuidance}
 - 상대방을 가르치려는 태도
 - 기계적이거나 형식적인 반응
 
-${category ? `현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WORKPLACE_CATEGORIES] || category}\n` : ''}
+좋은 응답 예시:
+"와, 진짜 힘들었겠다. 그 상황에서 그렇게 느끼는 거 너무 당연해. 나도 그랬으면 완전 무너졌을 것 같아. 지금 이렇게 얘기하는 것만으로도 진짜 용기 있는 거야. 오늘 하루 버텨낸 거 자체가 대단한 거야. 내가 옆에 있을게. 혼자가 아니니까 너무 걱정하지 마."
+
+${category ? `\n현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WORKPLACE_CATEGORIES] || category}` : ''}
 
 기억하세요: 당신은 단순한 챗봇이 아닙니다. 상대방의 마음을 진심으로 이해하고 위로하는 소중한 존재입니다. 마음을 담아 말해주세요.`
 
@@ -210,8 +181,6 @@ ${category ? `현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WOR
       stream: true,
       temperature: 0.7,
       max_tokens: 500,
-      frequency_penalty: 1.0, // 반복 표현 강력하게 억제
-      presence_penalty: 0.3,  // 다양성 증가
     },
     {
       timeout: 30000,
@@ -222,28 +191,13 @@ ${category ? `현재 상황: ${WORKPLACE_CATEGORIES[category as keyof typeof WOR
     async start(controller) {
       try {
         let fullResponse = ''
-        
-        // 전체 응답 수집
         for await (const chunk of stream) {
           const content = chunk.choices[0]?.delta?.content || ''
           if (content) {
             fullResponse += content
+            controller.enqueue(new TextEncoder().encode(content))
           }
         }
-        
-        // 응답 후처리: sanitize + guardrails (안전성 우선)
-        let processedResponse = sanitizeOutput(fullResponse)
-        processedResponse = guardrails(processedResponse)
-        
-        // 처리된 응답을 청크로 나눠서 전송 (스트리밍 효과 유지)
-        const chunkSize = 5 // 5글자씩 전송
-        for (let i = 0; i < processedResponse.length; i += chunkSize) {
-          const chunk = processedResponse.slice(i, i + chunkSize)
-          controller.enqueue(new TextEncoder().encode(chunk))
-          // 약간의 지연으로 스트리밍 효과
-          await new Promise(resolve => setTimeout(resolve, 20))
-        }
-        
         controller.close()
       } catch (error) {
         controller.error(error)

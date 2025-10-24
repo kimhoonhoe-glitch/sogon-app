@@ -1,117 +1,164 @@
 # 소곤 SOGON - Replit 프로젝트
 
-## Overview
-"소곤 SOGON"은 직장인을 위한 AI 감정 코칭 앱입니다. "말해보세요. 당신 편이 조용히 듣고 있어요"라는 태그라인 아래, AI와의 대화를 통해 사용자 감정을 분석하고 위로와 조언을 제공합니다. 주요 기능으로는 AI 감정 대화, 7가지 페르소나 모드, 음성 입력(STT), 4-7-8 호흡법 가이드, 감정 자동 분류 및 트래킹, 위험 키워드 감지, 프리미엄 구독 기능 등이 있습니다. 이 프로젝트는 사용자에게 심리적 안정과 위로를 제공하여 정신 건강 증진에 기여하는 것을 목표로 합니다.
+## 프로젝트 개요
+직장인을 위한 AI 감정 코칭 앱 "소곤 SOGON". 
+태그라인: "말해보세요. 당신 편이 조용히 듣고 있어요"
+Next.js 14 App Router, TypeScript, Prisma, OpenAI GPT-4o-mini를 사용한 풀스택 애플리케이션.
 
-## User Preferences
-- **Communication Style**: I prefer simple language and direct answers.
-- **Workflow**: I want iterative development.
-- **Interaction**: Ask before making major changes.
-- **Codebase Changes**:
-    - Do not make changes to the folder `Z`.
-    - Do not make changes to the file `Y`.
+## 기술 스택
+- Frontend: Next.js 14 (App Router), React 19, TypeScript
+- Styling: Tailwind CSS, Pretendard Variable font
+- Database: Prisma ORM + SQLite
+- Auth: NextAuth.js (Email, Google OAuth)
+- AI: OpenAI GPT-4o-mini
+- Payment: Stripe (Test mode)
+- Charts: Chart.js, react-chartjs-2
 
-## System Architecture
-"소곤 SOGON"은 Next.js 14 App Router, TypeScript, Prisma, OpenAI GPT-4o-mini를 기반으로 하는 풀스택 애플리케이션입니다.
+## 주요 기능
+1. AI 감정 대화 (스트리밍 응답)
+2. **페르소나 모드 (7가지)** - 킬러 기능!
+   - 애인, 친구, 형/누나, 동생, 엄마/아빠, 선배, 멘토
+   - 각 페르소나별 고유 말투와 위로 방식
+3. **음성 입력 (STT)** - 마이크 버튼으로 음성을 텍스트로 변환
+4. **4-7-8 호흡법** - 과학적으로 검증된 스트레스 완화
+5. 감정 자동 분류 및 트래킹
+6. 위험 키워드 감지
+7. 프리미엄 구독 (Stripe)
+8. 다크모드 지원
 
-**UI/UX Decisions:**
-- **Design System**: 라벤더 컬러 시스템 및 모바일 반응형 레이아웃을 채택하여 심미적이고 사용자 친화적인 경험을 제공합니다.
-- **Dark Mode**: 완벽한 다크모드 지원으로 모든 UI 요소의 가시성을 확보합니다.
-- **Emotional Visualization**: Dashboard는 EmotionSummaryCard (프로그레스 바), EmotionLineChart (Chart.js), EmotionCalendar 등을 통해 감정 데이터를 시각적으로 표현합니다.
-- **Welcome Experience**: 첫 실행 시 환영 화면과 함께 4-7-8 호흡법 선택 기능을 제공하여 사용자의 초기 스트레스 완화를 돕습니다.
-- **Animations**: 부드러운 입자 효과, 스크롤 애니메이션 (fadeIn, slideIn), 펄스 애니메이션 등을 활용하여 동적이고 인터랙티브한 UI를 구현합니다.
-- **Navigation**: 모든 페이지에서 일관된 헤더 내비게이션 메뉴와 프로필 버튼을 제공하여 페이지 간 이동 편의성을 높입니다.
-- **Time-based UI**: 한국 시간대(KST)를 기준으로 아침/점심/저녁 인사말 및 ThemeToggle 컴포넌트의 해/달 아이콘이 변경됩니다.
+## 환경 변수 필요
+- NEXTAUTH_SECRET: 이미 설정됨 (SESSION_SECRET 사용)
+- NEXTAUTH_URL: http://localhost:5000
+- OPENAI_API_KEY: 필요 (사용자가 제공해야 함)
+- GOOGLE_CLIENT_ID: 선택 사항
+- GOOGLE_CLIENT_SECRET: 선택 사항
+- STRIPE_SECRET_KEY: 선택 사항
 
-**Technical Implementations:**
-- **AI Conversation**: OpenAI GPT-4o-mini를 활용한 AI 감정 대화는 스트리밍 방식으로 응답하며, 7가지 페르소나(애인, 친구, 형/누나, 동생, 엄마/아빠, 선배, 멘토)를 통해 다양한 위로 스타일을 제공합니다.
-- **Speech-to-Text (STT)**: Web Speech API를 사용하여 음성을 텍스트로 변환하며, 반이중 모드 및 자동 재시작 기능을 통해 안정적인 음성 인식을 지원합니다.
-- **Content Moderation**: AI 응답 및 사용자 입력을 대상으로 금지어 필터링(오프라인 만남, 금전, 신체 접촉 제안 차단) 및 메시지 Sanitization을 강화하여 안전하고 건전한 대화 환경을 조성합니다.
-- **Authentication**: NextAuth.js를 통한 이메일 및 Google OAuth 로그인을 지원하며, 로그인 성능 최적화 및 이메일 저장 기능으로 사용자 편의성을 높였습니다.
-- **Database**: Prisma ORM과 SQLite를 사용하여 데이터베이스를 관리하며, 사용자 세션, 감정 기록, 구독 정보 등을 저장합니다.
-- **Guest Mode**: 로그인 없이 앱을 즉시 사용할 수 있는 게스트 모드를 구현하여 접근성을 높였습니다.
-- **Localization**: 한국 시간대(KST)를 적용하여 시차로 인한 사용자 경험 문제를 해결합니다.
+## 실행 방법
+\`\`\`bash
+npm run dev
+\`\`\`
 
-**Feature Specifications:**
-- **Persona Mode**: 각 페르소나별 고유한 시스템 프롬프트, 말투, 이모지, 위로 방식을 정의하여 대화의 다양성을 제공합니다.
-- **4-7-8 Breathing Technique**: 과학적으로 검증된 호흡법 가이드를 통해 사용자의 스트레스 완화를 지원합니다.
-- **Emotion Tracking**: 대화 내용을 기반으로 감정을 자동 분류하고 트래킹하여 대시보드에서 시각적으로 인사이트를 제공합니다.
-- **AI Prompt Engineering**: "깊이 있는 공감과 위로"를 중심으로 프롬프트를 재설계하여 따뜻하고 진정성 있는 AI 응답을 유도합니다.
-
-## External Dependencies
-- **OpenAI**: GPT-4o-mini 모델을 사용하여 AI 감정 대화 및 감정 분석 기능을 구현합니다.
-- **Prisma ORM**: SQLite 데이터베이스와의 상호작용을 위한 ORM으로 사용됩니다.
-- **NextAuth.js**: 이메일 및 Google OAuth를 통한 사용자 인증을 처리합니다.
-- **Stripe**: 프리미엄 구독 서비스 결제 처리를 위해 사용됩니다 (테스트 모드).
-- **Chart.js / react-chartjs-2**: 대시보드에서 감정 추이 라인 차트 등 데이터 시각화를 위해 사용됩니다.
-- **Tailwind CSS**: 스타일링을 위한 유틸리티 우선 CSS 프레임워크입니다.
-- **Pretendard Variable font**: 폰트 적용을 위해 사용됩니다.
+## 데이터베이스
+SQLite 파일: \`prisma/dev.db\`
+Prisma schema: \`prisma/schema.prisma\`
 
 ## 최근 변경사항
+- 2024-10-21: 앱 이름 "소곤 SOGON"으로 리브랜딩
+- 태그라인: "말해보세요. 당신 편이 조용히 듣고 있어요"
+- 초기 프로젝트 생성 및 모든 핵심 기능 구현
+- 라벤더 컬러 시스템 디자인 적용
+- 모바일 반응형 레이아웃 구현
+- 중요 보안 수정:
+  * Password 필드 추가 및 bcrypt 해싱 구현
+  * Stripe 세션 재사용 방지 (stripeSessionId unique constraint)
+  * 서버 사이드 익명 모드 결정 (클라이언트 조작 불가)
+  * Subscription 레코드 자동 생성 (rate limit 우회 방지)
+  * 웹훅 핸들러 upsert 로직 구현
 
-### 2025-10-22: Hydration Mismatch 오류 수정 및 호흡법 타이머 정확도 개선
+### Dashboard 리디자인 (2024-10-21)
+- EmotionSummaryCard: 프로그레스 바로 감정 비율 시각화
+- EmotionLineChart: Chart.js로 30일 감정 추이 라인 차트
+- AIInsightCard: OpenAI로 주간 패턴 분석 및 인사이트 제공
+- EmotionCalendar: 날짜별 감정 이모지 달력
+- 반투명 카드 디자인 (backdrop-blur)
+- 스크롤 애니메이션 (fadeIn, slideInLeft, slideInRight, slideInUp)
+- 감정 색상 통일 (lib/emotions.ts로 분리)
+- OPENAI_API_KEY 없을 때 에러 방지 (dummy-key fallback)
 
-**Hydration Mismatch 오류 완전 해결:**
-- **components/ThemeToggle.tsx**: 서버/클라이언트 마크업 불일치 수정
-  * mounted가 false일 때 `<div>` 반환 → `<button disabled>` 반환으로 변경
-  * 서버와 클라이언트 모두 동일한 `<button>` 엘리먼트 렌더링하여 Hydration 일관성 확보
-  * React Hydration failed 에러 완전 제거
-- **app/page.tsx**: LandingPage 컴포넌트 Hydration 보호
-  * TrustBadge 컨테이너에 `suppressHydrationWarning` 추가하여 동적 요소 경고 억제
-  * 이메일/비밀번호 input에 `autoComplete` 속성 명시 (서버/클라이언트 일관성)
-- **components/TrustBadge.tsx**: mounted 체크로 SSR/CSR 분리
-  * `useState` + `useEffect`로 클라이언트 마운트 감지
-  * mounted false 시 동일한 엘리먼트 타입(`<div>`) 반환으로 Hydration 보장
-  * `suppressHydrationWarning` 추가로 tooltip state 경고 억제
-- **app/layout.tsx**: `suppressHydrationWarning` 속성으로 테마 관련 경고 억제
+### Welcome 화면 개선 (2024-10-21)
+- 첫 실행 시 환영 화면 (/welcome)
+- 라벤더 → 베이지 그라데이션 배경
+- 부드러운 입자 효과 애니메이션 (20개)
+- 4-7-8 호흡법 **선택 기능**:
+  * "호흡하고 시작하기" - 4-7-8 호흡법 3회 진행
+  * "바로 시작하기" - 호흡 건너뛰고 바로 대화 시작
+  * 호흡법 효과 설명 추가 (스트레스 완화, 마음 안정, 집중력 향상, 숙면)
+  * 호흡 중 "건너뛰기" 버튼 추가
+  * 카운트다운 타이머와 페이즈별 색상 변화
+- localStorage로 첫 실행 여부 추적
 
-**4-7-8 호흡법 타이머 정확도 개선:**
-- **components/BreathingGuide.tsx**: 실제 시간 기반 타이머로 전면 재설계
-  * 기존: `setInterval(1000)` 사용으로 부정확한 타이밍
-  * 수정: `Date.now()` 기반 실시간 계산으로 정확한 4초-7초-8초 타이밍 구현
-  * 50ms 주기로 업데이트하여 부드럽고 정확한 카운트다운 제공
+### AI 프롬프트 대폭 개선 (2024-10-21)
+- 기존 "짧고 간결한 답변" → "깊이 있는 공감과 위로" 중심으로 전환
+- 진짜 친구/연인이 위로해주는 느낌의 대화 톤
+- 감정 인정 → 위로 → 조언 순서로 구조화
+- Temperature 1.0, Max tokens 600으로 증가 (더 풍부한 응답)
+- Azure OpenAI 콘텐츠 필터 호환 프롬프트
+- Replit AI Integrations 연결 (API 키 불필요)
 
-**테스트 결과:**
-- ✅ 모든 Hydration mismatch 오류 제거 (ThemeToggle, LandingPage, TrustBadge)
-- ✅ 브라우저 콘솔 오류 0개 (React DevTools 권장 메시지만 표시)
-- ✅ 서버 로그 클린 (에러 없이 정상 컴파일)
-- ✅ 로그인/회원가입/구글 로그인/익명 체험 버튼 정상 작동
-- ✅ 모바일/데스크톱 반응형 레이아웃 정상 표시
+### AI 프롬프트 재설계 (2024-10-21 추가 개선)
+- **따뜻하고 진정성 있는 위로** 중심으로 완전 재설계
+- 역할 정의: 연인/친구/부모/형제자매처럼 다양한 방식으로 위로
+- 깊은 공감 + 무조건적 지지 + 따뜻한 위로 + 진정성 있는 격려
+- 구체적인 공감 표현 ("그랬구나", "힘들었겠다", "속상했을 것 같아")
+- 판단하지 않고 있는 그대로 받아들이는 태도
+- 진부하지 않은 구체적 격려 ("오늘도 버텨낸 거 자체가 대단해")
 
-### 2025-10-22: 프로덕션 완성도 최적화 및 경고 완전 제거
-- **iOS Safari STT 호환성 강화 및 PWA 지원**:
-  * lib/speech-recognition.ts: checkSTTSupport() 함수로 브라우저별 지원 여부 확인
-  * iOS Safari / macOS Safari 감지 시 자동으로 텍스트 입력 권장 토스트 표시
-  * 마이크 버튼 tooltip에 "iOS Safari에서는 텍스트로 입력해주세요" 안내
-  * 크로스 브라우저 polyfill: SpeechRecognition = webkitSpeechRecognition
-- **토스트 알림 시스템 구축** (components/Toast.tsx):
-  * useToast hook으로 간편한 알림 표시
-  * 4가지 타입: info, error, success, warning
-  * 권한 거부 시: "마이크 권한을 허용해주세요. 브라우저 설정 > 사이트 권한 확인!"
-  * 네트워크 오류 시: "네트워크 오류가 발생했습니다"
-  * 인식 시작 시: "말해주세요. 끝나면 자동으로 멈춥니다"
-- **PWA (Progressive Web App) 지원**:
-  * public/manifest.json: 홈 화면 추가 가능
-  * public/sw.js: Service Worker로 오프라인 캐시
-  * components/PWARegister.tsx: 이벤트 리스너 메모리 누수 방지 및 console.log 제거
-  * app/layout.tsx: PWA meta 태그 및 viewport 설정
-  * app/icon.tsx & app/apple-icon.tsx: Next.js 동적 아이콘 생성으로 모든 크기 자동 지원
-- **로그인 페이지 Hydration 에러 수정**:
-  * components/ThemeToggle.tsx: 시간 기반 아이콘 로직 제거 (서버/클라이언트 불일치 원인)
-  * 테마 기반(dark/light)으로만 아이콘 표시하여 SSR/CSR 일관성 확보
-  * React Hydration mismatch 에러 완전 해결로 로그인/회원가입/구글 로그인/익명 체험 버튼 정상 작동
-- **프로덕션 품질 최적화**:
-  * **Form Accessibility**: autocomplete="email" 및 autocomplete="current-password" 속성 추가하여 브라우저 자동완성 및 보안 강화
-  * **Cross-Origin 경고 제거**: next.config.js에 allowedDevOrigins 설정으로 Replit 도메인 전체 허용 (localhost, 127.0.0.1, *.replit.dev, *.worf.replit.dev)
-  * **SEO 최적화**: app/robots.ts 및 app/sitemap.xml 생성으로 검색엔진 최적화 완료
-  * **코드 품질**: PWARegister.tsx에서 이벤트 리스너 정리(cleanup) 로직 추가 및 불필요한 console.log 제거
-  * **.next 빌드 캐시 초기화**: 완전한 재빌드로 모든 최적화 적용 확인
-- **테스트 결과**:
-  * ✅ Service Worker 등록 성공
-  * ✅ iOS Safari에서 음성 버튼 비활성화 및 tooltip 표시
-  * ✅ Chrome/Edge에서 음성 입력 정상 작동
-  * ✅ PWA 동적 아이콘 생성으로 404 에러 해결
-  * ✅ 로그인 페이지 모든 버튼 정상 작동 확인
-  * ✅ robots.txt 및 sitemap.xml 정상 생성 (200 OK)
-  * ✅ Cross-origin 경고 완전 제거 (서버 로그 깨끗)
-  * ✅ HTML에 autocomplete 속성 제대로 적용됨 확인
+### 메시지 Sanitization 강화 (2024-10-21)
+- Azure OpenAI 콘텐츠 필터 대응 강화
+- 극단적 표현을 완전히 제거하고 안전한 표현으로 재구성
+- 감정 분석을 로컬 키워드 매칭으로 변경 (API 호출 제거)
+- 비속어와 강한 표현을 중립적으로 변환하되 감정의 의미는 보존
+
+### UI/UX 개선 (2024-10-21)
+- 다크모드 텍스트 가시성 수정 완료
+  * 채팅 메시지, 버튼, 입력창 등 모든 요소에 dark:text-white 적용
+  * placeholder 텍스트 색상도 다크모드 대응
+- 네비게이션 메뉴 추가
+  * Premium 페이지: 대화, 대시보드, 프로필 버튼 추가
+  * Profile 페이지: 대화, 대시보드, 프리미엄 버튼 추가
+  * 모든 페이지에서 일관된 이동 경험 제공
+
+### 페르소나 모드 추가 (2024-10-21) 🎭
+- **7가지 대화 스타일**: 애인, 친구, 형/누나, 동생, 엄마/아빠, 선배, 멘토
+- lib/personas.ts: 각 페르소나별 고유 시스템 프롬프트
+  * 애인: 사랑스럽고 따뜻한 반말
+  * 친구: 편안하고 공감하는 반말
+  * 형/누나: 다정하고 든든한 반말
+  * 동생: 귀엽고 애교 가득한 반말
+  * 엄마/아빠: 무조건적 사랑과 지지의 존댓말
+  * 선배: 전문적이고 조언하는 존댓말
+  * 멘토: 신중하고 성찰을 돕는 존댓말
+- components/PersonaSelector.tsx: 드롭다운 선택 UI
+- localStorage로 페르소나 선택 저장
+- API 라우트와 OpenAI 함수에 personaId 전달
+- 페르소나별 말투, 이모지, 위로 방식 차별화
+
+### TTS 기능 제거 (2024-10-21)
+- Web Speech API 품질이 기계음으로 들려 사용자 경험 저하
+- 자연스러운 음성(OpenAI TTS 등) 지원 시 재추가 예정
+- Replit AI Integration은 TTS 엔드포인트 미지원
+- lib/speech.ts 파일 삭제
+- 채팅 화면의 🔊 음성 재생 버튼 제거
+
+### 음성 입력 (STT) 추가 (2024-10-21) 🎤
+- Web Speech API의 SpeechRecognition 사용
+- 한국어 음성을 텍스트로 실시간 변환
+- lib/speech-recognition.ts: 음성 인식 유틸리티
+- 채팅 입력창 우측 상단에 마이크 버튼 추가
+- 녹음 중일 때 빨간색 pulse 애니메이션 표시
+- 브라우저 마이크 권한 필요 (Chrome, Edge 등 지원)
+- 음성 인식 중 실시간으로 텍스트 입력창에 표시
+
+### 호흡 가이드 강화 (2024-10-21) 🌬️
+- **4-7-8 호흡법** 적용 (과학적으로 검증된 스트레스 완화법)
+  * 들이쉬기: 4초 (코로 깊게)
+  * 멈추기: 7초 (숨을 멈추고)
+  * 내쉬기: 8초 (입으로 천천히)
+- Welcome 페이지와 BreathingGuide 컴포넌트 모두 4-7-8 타이밍 통일
+- 카운트다운 타이머 표시 (숫자로)
+- 페이즈별 그라데이션 색상 변화
+  * 들이쉬기: 파란색 (Blue-Cyan)
+  * 멈추기: 보라색 (Purple-Pink)
+  * 내쉬기: 초록색 (Green-Teal)
+- 펄스 애니메이션 효과
+- 효과 설명: 스트레스 완화, 마음 안정, 숙면, 집중력 향상
+
+### 채팅 UI 개선 (2024-10-21)
+- 히어로 문구 변경: "오늘은 어떤 일이 있었나요?"
+- 직장 카테고리 버튼 완전 제거 (사용자 자유도 향상)
+- 로고 클릭 시 홈으로 이동 (confirm 팝업)
+
+### 환경 변수 업데이트
+- AI_INTEGRATIONS_OPENAI_API_KEY: Replit AI 통합 (자동 설정)
+- AI_INTEGRATIONS_OPENAI_BASE_URL: Replit AI 엔드포인트 (자동 설정)

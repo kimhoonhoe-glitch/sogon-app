@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import ThemeToggle from '@/components/ThemeToggle'
-import TrustBadge from '@/components/TrustBadge'
 
 interface LoginForm {
   email: string
@@ -16,86 +15,27 @@ export default function LandingPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [isAnonymous, setIsAnonymous] = useState(false)
-  const [rememberEmail, setRememberEmail] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const { register, handleSubmit, setValue } = useForm<LoginForm>()
+  const { register, handleSubmit } = useForm<LoginForm>()
 
-  // 저장된 이메일 불러오기 + 페이지 prefetch
   useEffect(() => {
-    const savedEmail = localStorage.getItem('saved_email')
-    if (savedEmail) {
-      setValue('email', savedEmail)
-      setRememberEmail(true)
+    const welcomeCompleted = localStorage.getItem('welcome_completed')
+    if (!welcomeCompleted) {
+      router.push('/welcome')
     }
-    
-    // /chat와 /welcome 페이지 미리 로드
-    router.prefetch('/chat')
-    router.prefetch('/welcome')
-  }, [setValue, router])
+  }, [router])
 
-  // 자동 리다이렉트 제거 - 사용자가 버튼을 눌러야만 이동
+  useEffect(() => {
+    if (status === 'authenticated' && !isAnonymous) {
+      router.push('/chat')
+    }
+  }, [status, router, isAnonymous])
 
   const onEmailLogin = async (data: LoginForm) => {
-    setIsLoading(true)
-    try {
-      const result = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        mode: 'login',
-        redirect: false,
-      })
-      
-      if (result?.ok) {
-        // 이메일 저장 체크 시 localStorage에 저장
-        if (rememberEmail) {
-          localStorage.setItem('saved_email', data.email)
-        } else {
-          localStorage.removeItem('saved_email')
-        }
-        
-        const welcomeCompleted = localStorage.getItem('welcome_completed')
-        if (welcomeCompleted) {
-          router.push('/chat')
-        } else {
-          router.push('/welcome')
-        }
-      } else {
-        setIsLoading(false)
-        alert('이메일 또는 비밀번호가 올바르지 않습니다.')
-      }
-    } catch (error) {
-      setIsLoading(false)
-      alert('로그인 중 오류가 발생했습니다.')
-    }
-  }
-
-  const onEmailSignup = async (data: LoginForm) => {
-    setIsLoading(true)
-    try {
-      const result = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        mode: 'signup',
-        redirect: false,
-      })
-      
-      if (result?.ok) {
-        // 이메일 저장 체크 시 localStorage에 저장
-        if (rememberEmail) {
-          localStorage.setItem('saved_email', data.email)
-        } else {
-          localStorage.removeItem('saved_email')
-        }
-        
-        router.push('/welcome')
-      } else {
-        setIsLoading(false)
-        alert('회원가입에 실패했습니다. 이미 존재하는 이메일일 수 있습니다.')
-      }
-    } catch (error) {
-      setIsLoading(false)
-      alert('회원가입 중 오류가 발생했습니다.')
-    }
+    await signIn('credentials', {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    })
   }
 
   const handleGoogleLogin = () => {
@@ -104,12 +44,7 @@ export default function LandingPage() {
 
   const handleAnonymous = () => {
     setIsAnonymous(true)
-    const welcomeCompleted = localStorage.getItem('welcome_completed')
-    if (welcomeCompleted) {
-      router.push('/chat?anonymous=true&skipBreathing=true')
-    } else {
-      router.push('/welcome')
-    }
+    router.push('/chat?anonymous=true')
   }
 
   return (
@@ -133,7 +68,7 @@ export default function LandingPage() {
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-soft p-8 space-y-6">
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit(onEmailLogin)} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2 text-text dark:text-white">
                 이메일
@@ -141,7 +76,6 @@ export default function LandingPage() {
               <input
                 type="email"
                 {...register('email', { required: true })}
-                autoComplete="email"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-background dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                 placeholder="your@email.com"
               />
@@ -153,47 +87,16 @@ export default function LandingPage() {
               <input
                 type="password"
                 {...register('password', { required: true })}
-                autoComplete="current-password"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-background dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                 placeholder="••••••••"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="rememberEmail"
-                checked={rememberEmail}
-                onChange={(e) => setRememberEmail(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-2"
-              />
-              <label 
-                htmlFor="rememberEmail" 
-                className="text-sm text-text dark:text-white cursor-pointer"
-              >
-                이메일 주소 저장
-              </label>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={handleSubmit(onEmailLogin)}
-                disabled={isLoading}
-                className="w-full bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 border-2 border-primary text-primary font-semibold py-3 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? '로그인 중...' : '로그인'}
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmit(onEmailSignup)}
-                disabled={isLoading}
-                className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-xl transition-all duration-300 hover:shadow-soft disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? '가입 중...' : '회원가입'}
-              </button>
-            </div>
-            <p className="text-xs text-center text-text/60 dark:text-white/60 mt-2">
-              처음이신가요? 회원가입 버튼을 눌러주세요. 이미 계정이 있다면 로그인하세요.
-            </p>
+            <button
+              type="submit"
+              className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-xl transition-all duration-500 hover:shadow-soft"
+            >
+              로그인 / 회원가입
+            </button>
           </form>
 
           <div className="relative">
@@ -228,13 +131,10 @@ export default function LandingPage() {
           </button>
         </div>
 
-        <div className="flex flex-col items-center gap-2 mt-6" suppressHydrationWarning>
-          <TrustBadge variant="text" />
-          <p className="text-center text-xs text-text/50 dark:text-white/50 px-4">
-            마음지기는 의료 서비스가 아닙니다.<br />
-            응급 상황 시 전문 상담사와 상담하세요.
-          </p>
-        </div>
+        <p className="text-center text-xs text-text/50 dark:text-white/50 mt-6 px-4">
+          마음지기는 의료 서비스가 아닙니다.<br />
+          응급 상황 시 전문 상담사와 상담하세요.
+        </p>
       </div>
     </div>
   )

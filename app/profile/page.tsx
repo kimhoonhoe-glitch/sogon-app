@@ -36,24 +36,45 @@ export default function ProfilePage() {
     }
   }
 
-  if (status === 'unauthenticated' || (status !== 'loading' && !session?.user?.id)) {
-    router.replace('/')
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text/60 dark:text-white/60">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated' || !session?.user?.id) {
     return null
   }
 
-  const isLoading = status === 'loading' || loading
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text/60 dark:text-white/60">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10 pt-16">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 p-3 md:p-4">
-        <div className="w-full max-w-4xl mx-auto flex justify-between items-center gap-4">
-          <button 
-            onClick={() => router.push('/welcome')} 
-            className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
-          >
-            <span className="text-2xl pointer-events-none">💙</span>
-            <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white pointer-events-none">프로필</h1>
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/10 to-accent/10">
+      <header className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
+        <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button 
+              onClick={() => router.push('/welcome')} 
+              className="text-2xl hover:opacity-80 transition-opacity"
+            >
+              💙
+            </button>
+            <h1 className="text-lg sm:text-xl font-bold text-text dark:text-white">프로필</h1>
+          </div>
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <button
               onClick={() => router.push('/chat')}
@@ -81,7 +102,7 @@ export default function ProfilePage() {
         </div>
       </header>
 
-      <main className="w-full max-w-4xl mx-auto p-4 md:p-6 space-y-6">
+      <main className="max-w-4xl mx-auto p-6 space-y-6">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-soft p-8">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-3xl">
@@ -101,32 +122,24 @@ export default function ProfilePage() {
 
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
             <h3 className="text-lg font-semibold mb-4 text-text dark:text-white">구독 정보</h3>
-            {isLoading ? (
-              <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-6">
-                <div className="flex justify-center py-8">
-                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-text/60 dark:text-white/60">현재 플랜</p>
+                  <p className="text-2xl font-bold text-primary mt-1">
+                    {subscription?.plan === 'premium' ? '프리미엄' : '무료'}
+                  </p>
                 </div>
+                {subscription?.plan === 'free' && (
+                  <button
+                    onClick={() => router.push('/premium')}
+                    className="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all"
+                  >
+                    업그레이드
+                  </button>
+                )}
               </div>
-            ) : (
-              <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-sm text-text/60 dark:text-white/60">현재 플랜</p>
-                    <p className="text-2xl font-bold text-primary mt-1">
-                      {subscription?.plan === 'premium' ? '프리미엄' : '무료'}
-                    </p>
-                  </div>
-                  {subscription?.plan === 'free' && (
-                    <button
-                      onClick={() => router.push('/premium')}
-                      className="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all"
-                    >
-                      업그레이드
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
+            </div>
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">

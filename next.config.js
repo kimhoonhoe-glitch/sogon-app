@@ -4,9 +4,11 @@ const nextConfig = {
     domains: ['lh3.googleusercontent.com'],
   },
   allowedDevOrigins: [
-    'localhost',
-    '127.0.0.1',
-    ...(process.env.REPLIT_DOMAINS ? process.env.REPLIT_DOMAINS.split(',').map(d => d.trim()) : []),
+    'localhost:5000',
+    '127.0.0.1:5000',
+    '*.replit.dev',
+    '*.worf.replit.dev',
+    process.env.REPLIT_DOMAINS,
   ].filter(Boolean),
 }
 
