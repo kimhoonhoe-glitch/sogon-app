@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -210,4 +210,3 @@ export default function PremiumPage() {
     </div>
   )
 }
-export const dynamic = 'force-dynamic';

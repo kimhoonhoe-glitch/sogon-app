@@ -59,6 +59,7 @@ export default function DashboardPage() {
   }
 
   if (status === 'unauthenticated' || (status !== 'loading' && !session?.user?.id)) {
+    router.replace('/')
     return null
   }
 
