@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // 이전에 오류가 났던 모든 복잡한 import는 임시로 주석 처리합니다.
-// import { generateEmpathyResponse, analyzeEmotion, detectCrisis } from '@/lib/ai'; 
+   import { generateEmpathyResponse, analyzeEmotion, detectCrisis } from '@/lib/ai'
 // import { FREE_DAILY_LIMIT } from '@/lib/stripe'; 
 // import { prisma } from '@/lib/prisma';
 // import { authOptions } from '@/lib/auth';
