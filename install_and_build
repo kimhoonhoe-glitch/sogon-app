@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -e
+
+echo "--- 1. Flutter SDK 다운로드 및 설정 ---"
+# Flutter SDK를 홈 디렉토리에 클론 (stable 브랜치 사용)
+FLUTTER_ROOT="$HOME/flutter"
+if [ ! -d "$FLUTTER_ROOT" ]; then
+  git clone https://github.com/flutter/flutter.git -b stable --depth 1 "$FLUTTER_ROOT"
+fi
+
+# PATH 환경 변수에 Flutter 명령어 경로 추가
+export PATH="$FLUTTER_ROOT/bin:$PATH"
+
+# Flutter 웹 지원 활성화 및 캐시 다운로드
+flutter config --enable-web
+flutter precache --web
+
+echo "--- 2. Flutter 프로젝트 의존성 설치 및 빌드 ---"
+# 패키지 다운로드
+flutter pub get
+
+# 웹 앱 빌드 (build/web 폴더 생성)
+flutter build web --release
+
+echo "--- 빌드 완료! Netlify가 build/web을 게시합니다. ---"
