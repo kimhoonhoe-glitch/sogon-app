@@ -1,19 +1,7 @@
-# =========================================================
-# Netlify 빌드 설정: Flutter Web 빌드 스크립트 실행
-# =========================================================
 [build]
-  command = "bash ./netlify-build.sh"
+# 빌드 명령: 패키지 설치 후 웹 빌드
+# Flutter 설치는 netlify-build.sh에서 처리되므로, 여기서는 핵심 명령만 나열합니다.
+command = "flutter pub get && flutter build web --release --target=lib/main.dart"
 
-  # 배포 폴더: 루트 기준 build/web (Flutter Web 기본 경로)
-  publish = "build/web" 
-
-  # Node.js 플러그인 간섭을 막기 위해 환경 변수를 명시 (안정 버전)
-  environment = { NODE_VERSION = "18" }
-
-# =========================================================
-# 라우팅 문제 해결
-# =========================================================
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# 빌드 결과물이 위치할 폴더 (Flutter Web의 기본 출력 경로)
+publish = "build/web"
