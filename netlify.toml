@@ -1,7 +1,7 @@
 [build]
-# 빌드 명령: 패키지 설치 후 웹 빌드
-# Flutter 설치는 netlify-build.sh에서 처리되므로, 여기서는 핵심 명령만 나열합니다.
-command = "flutter pub get && flutter build web --release --target=lib/main.dart"
+# 빌드 명령을 우리가 만든 스크립트 하나만 실행하도록 수정합니다.
+# 이 스크립트가 Flutter 설치와 빌드를 모두 처리합니다.
+command = "./netlify-build.sh"
 
-# 빌드 결과물이 위치할 폴더 (Flutter Web의 기본 출력 경로)
+# 배포 폴더는 그대로 둡니다.
 publish = "build/web"
