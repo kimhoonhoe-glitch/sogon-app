@@ -1,8 +1,14 @@
+# Netlify Build 설정 (선택 사항: Node 버전 명시)
+[build]
+  environment = { NODE_VERSION = "20" }
+
+# 1. 라우팅 규칙 (Flutter SPA 라우팅 해결)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+# 2. Next.js 플러그인 강제 비활성화 (빌드 실패 문제 해결)
 [[plugins]]
   package = "@netlify/plugin-nextjs"
   disable = true
