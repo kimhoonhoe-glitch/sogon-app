@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
+
+# ★★★ 중요: 폴더 이동(cd) 명령을 제거했습니다. 빌드는 루트에서 실행됩니다. ★★★
 
 # 1. Flutter SDK 설치
 git clone --depth 1 https://github.com/flutter/flutter.git -b stable "$HOME/flutter"
