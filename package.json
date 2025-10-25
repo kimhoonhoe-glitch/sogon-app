@@ -1,41 +1,17 @@
 {
-  "name": "mindkeeper",
+  "name": "sogon-app",
   "version": "1.0.0",
-  "private": true,
+  "description": "A Flutter web application deployed to Netlify.",
+  "main": "index.js",
   "scripts": {
-    "dev": "next dev -p 5000",
-    "build": "prisma generate && next build",
-    "start": "next start -p 5000",
-    "lint": "next lint",
-    "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push"
+    "build": "flutter build web",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "@auth/prisma-adapter": "^2.11.0",
-    "@hookform/resolvers": "^5.2.2",
-    "@prisma/client": "^6.17.1",
-    "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^24.9.1",
-    "@types/react": "^19.2.2",
-    "autoprefixer": "^10.4.21",
-    "bcryptjs": "^3.0.2",
-    "chart.js": "^4.5.1",
-    "next": "^15.5.6",
-    "next-auth": "^4.24.11",
-    "next-themes": "^0.4.6",
-    "openai": "^6.6.0",
-    "postcss": "^8.5.6",
-    "prisma": "^6.17.1",
-    "react": "^19.2.0",
-    "react-chartjs-2": "^5.3.0",
-    "react-dom": "^19.2.0",
-    "react-hook-form": "^7.65.0",
-    "stripe": "^19.1.0",
-    "typescript": "^5.9.3",
-    "zod": "^4.1.12"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.15",
-    "tailwindcss": "^3.4.18"
-  }
+  "keywords": [
+    "flutter",
+    "web",
+    "netlify"
+  ],
+  "author": "",
+  "license": "ISC"
 }
