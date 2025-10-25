@@ -11,9 +11,7 @@ export PATH="$HOME/flutter/bin:$PATH"
 flutter config --enable-web
 flutter precache --web
 
-# ★★★ 추가된 명령어: 프로젝트 클린 (환경 인식에 도움을 줍니다) ★★★
-flutter clean
-
 # 4. 의존성 설치 및 웹 빌드 실행
+# 이 명령이 pubspec.yaml을 찾을 것입니다.
 flutter pub get
 flutter build web --release
