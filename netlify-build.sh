@@ -11,7 +11,7 @@ export PATH="$HOME/flutter/bin:$PATH"
 flutter config --enable-web
 flutter precache --web
 
-# 4. 의존성 설치 및 웹 빌드 실행
-# 이 명령이 pubspec.yaml을 찾을 것입니다.
-flutter pub get
+# ★★★ 중요: pub get을 제거했습니다. pubspec.lock에 의존합니다. ★★★
+
+# 4. 웹 빌드 실행
 flutter build web --release
