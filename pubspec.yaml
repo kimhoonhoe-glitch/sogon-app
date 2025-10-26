@@ -1,10 +1,27 @@
 name: sogon_app
 description: "A new Flutter project."
-# 이 부분을 찾아서 아래처럼 수정하거나, 이 코드가 보이지 않는다면 아래처럼 추가합니다.
-environment:
-  sdk: ">=2.12.0 <4.0.0" # 이 줄이 중요합니다! 널 안전성(Null Safety)을 위한 최소 버전인 2.12.0을 명시합니다.
+publish_to: 'none' # Remove this line if you intend to publish to pub.dev
 
-# 아래부터는 원래 있던 내용입니다. (dependencies: 등)
+# 1. environment 섹션을 이대로 만드세요.
+environment:
+  sdk: ">=2.12.0 <4.0.0"
+
 dependencies:
+  # 2. flutter 아래에 sdk: flutter를 추가하세요 (4칸 띄어쓰기)
   flutter:
-# ...
+    sdk: flutter
+
+  # 이 아래는 기존에 사용하던 패키지 목록을 그대로 유지해야 합니다!
+  cupertino_icons: ^1.0.6
+  # 나머지 패키지 목록은 건드리지 마세요. (예: firebase_core, http, provider 등)
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+# 아래 flutter 섹션도 기존 내용을 유지합니다.
+flutter:
+  uses-material-design: true
+
+  # assets: 섹션 등 다른 내용은 그대로 둡니다.
