@@ -5,33 +5,25 @@ void main() {
   runApp(const MyApp());
 }
 
-// MyApp 위젯 (super-parameters 오류가 수정된 버전입니다.)
+// MyApp 위젯 (컴파일 오류가 모두 수정된 최종 기본 구조입니다.)
 class MyApp extends StatelessWidget {
+  // 이전 오류를 모두 해결한 올바른 생성자입니다.
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // 🌟🌟🌟 1. MaterialApp 앞의 const 키워드를 제거했습니다.
+    // 🌟🌟🌟 중요: 이 return 블록을 당신의 원래 앱 코드로 교체해야 합니다! 🌟🌟🌟
     return MaterialApp( 
-      title: 'Sogon App',
-      // 🌟🌟🌟 2. Scaffold 앞의 const 키워드를 제거했습니다.
-      home: Scaffold( 
-        appBar: AppBar(
-          title: const Text('App Deployment Successful!'), // Text는 const여도 됩니다.
-          backgroundColor: Colors.blueGrey, // Colors.blueGrey는 const입니다.
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [ // Children 목록은 const여도 됩니다.
-              Text(
-                '5일간의 무한 루프가 끝났습니다.',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Text('이제 빌드가 성공할 것입니다!', style: TextStyle(fontSize: 16)),
-            ],
-          ),
+      title: 'Sogon App', // 원래 앱의 제목으로 수정하세요.
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      // 여기에 당신의 앱이 시작되는 원래 위젯을 넣어야 합니다.
+      // 예시: home: const MyHomePage(),
+      home: const Center(
+        child: Text(
+          'SUCCESS! 여기에 당신의 원래 앱 위젯을 넣으세요.',
+          style: TextStyle(fontSize: 18, color: Colors.black54),
         ),
       ),
     );
