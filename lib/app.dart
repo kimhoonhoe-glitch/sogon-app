@@ -7,25 +7,23 @@ void main() {
 
 // MyApp 위젯 (super-parameters 오류가 수정된 버전입니다.)
 class MyApp extends StatelessWidget {
-  // 이전 오류 코드: const MyApp({super.key});
-  // 수정 코드: 명시적으로 Key를 받아서 super로 전달합니다. (오래된 Dart 버전 호환)
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // 실제 앱의 최상위 위젯으로 교체해야 합니다. 
-    // 임시로 실행되는지 확인하기 위한 코드입니다.
-    return const MaterialApp(
+    // 🌟🌟🌟 1. MaterialApp 앞의 const 키워드를 제거했습니다.
+    return MaterialApp( 
       title: 'Sogon App',
-      home: Scaffold(
+      // 🌟🌟🌟 2. Scaffold 앞의 const 키워드를 제거했습니다.
+      home: Scaffold( 
         appBar: AppBar(
-          title: Text('App Deployment Successful!'),
-          backgroundColor: Colors.blueGrey,
+          title: const Text('App Deployment Successful!'), // Text는 const여도 됩니다.
+          backgroundColor: Colors.blueGrey, // Colors.blueGrey는 const입니다.
         ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: const [ // Children 목록은 const여도 됩니다.
               Text(
                 '5일간의 무한 루프가 끝났습니다.',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
