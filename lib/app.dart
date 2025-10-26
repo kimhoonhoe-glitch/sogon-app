@@ -1,31 +1,40 @@
 import 'package:flutter/material.dart';
 
-// 앱 시작 함수
+// 앱 시작 함수: 이 부분은 그대로 둡니다.
 void main() {
   runApp(const MyApp());
 }
 
-// MyApp 위젯 (컴파일 오류가 모두 수정된 최종 기본 구조입니다.)
+// MyApp 위젯: 앱의 기본 설정을 담당합니다.
 class MyApp extends StatelessWidget {
-  // 이전 오류를 모두 해결한 올바른 생성자입니다.
+  // 컴파일 오류를 해결한 올바른 생성자입니다.
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // 🌟🌟🌟 중요: 이 return 블록을 당신의 원래 앱 코드로 교체해야 합니다! 🌟🌟🌟
     return MaterialApp( 
-      title: 'Sogon App', // 원래 앱의 제목으로 수정하세요.
+      title: 'Sogon App', // 여기에 당신의 앱 제목을 넣으세요.
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // 여기에 당신의 앱이 시작되는 원래 위젯을 넣어야 합니다.
-      // 예시: home: const MyHomePage(),
-      home: const Center(
-        child: Text(
-          'SUCCESS! 여기에 당신의 원래 앱 위젯을 넣으세요.',
-          style: TextStyle(fontSize: 18, color: Colors.black54),
-        ),
-      ),
+      // ⬇️⬇️⬇️ 1. 여기에 당신의 앱 시작 위젯 이름으로 수정하세요! ⬇️⬇️⬇️
+      home: const MyLoginPage(), // ⬅️⬅️⬅️ MyHomePage 대신 당신의 위젯 이름(예: MyLoginPage)
+      // ⬆️⬆️⬆️ ⬆️⬆️⬆️
     );
   }
 }
+
+// ⬇️⬇️⬇️ 2. 이 아래에 있는 'MyHomePage' 클래스 코드 전체를 지우고, 당신의 원래 'MyLoginPage' 코드 전체를 복붙하세요! ⬇️⬇️⬇️
+class MyLoginPage extends StatelessWidget {
+  // 이전 오류를 모두 해결한 올바른 생성자입니다.
+  const MyLoginPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      appBar: AppBar(title: Text('Original Login Page')),
+      body: Center(child: Text('여기에 당신의 원래 로그인 화면 코드가 들어갑니다.')),
+    );
+  }
+}
+// ⬆️⬆️⬆️ 2. 이 아래는 당신의 실제 앱 코드가 되어야 합니다. ⬆️⬆️⬆️
