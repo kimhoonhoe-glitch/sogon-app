@@ -18,22 +18,23 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       // ⬇️⬇️⬇️ 1. 여기에 당신의 앱 시작 위젯 이름으로 수정하세요! ⬇️⬇️⬇️
-      home: const MyLoginPage(), // ⬅️⬅️⬅️ MyHomePage 대신 당신의 위젯 이름(예: MyLoginPage)
+      home: const MyLoginPage(), 
       // ⬆️⬆️⬆️ ⬆️⬆️⬆️
     );
   }
 }
 
-// ⬇️⬇️⬇️ 2. 이 아래에 있는 'MyHomePage' 클래스 코드 전체를 지우고, 당신의 원래 'MyLoginPage' 코드 전체를 복붙하세요! ⬇️⬇️⬇️
+// ⬇️⬇️⬇️ 2. 이 아래는 당신의 원래 앱 코드가 들어갈 자리입니다. ⬇️⬇️⬇️
 class MyLoginPage extends StatelessWidget {
   // 이전 오류를 모두 해결한 올바른 생성자입니다.
   const MyLoginPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: AppBar(title: Text('Original Login Page')),
-      body: Center(child: Text('여기에 당신의 원래 로그인 화면 코드가 들어갑니다.')),
+    // 🌟🌟🌟 35번 줄 오류 해결: 여기의 'const'를 제거했습니다. 🌟🌟🌟
+    return Scaffold( 
+      appBar: AppBar(title: const Text('Original Login Page')),
+      body: const Center(child: Text('여기에 당신의 원래 로그인 화면 코드가 들어갑니다.')),
     );
   }
 }
