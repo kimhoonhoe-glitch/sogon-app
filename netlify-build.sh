@@ -16,7 +16,5 @@ flutter precache --web
 # 3. pubspec.yaml 파일의 의존성을 가져옵니다.
 flutter pub get
 
-# 4. 앱을 웹용으로 릴리즈 빌드합니다.
-# ⚠️ 주의: 만약 lib/main.dart가 아니라면 --target 옵션을 추가하세요.
-# 예시: flutter build web --release --target=lib/src/main.dart
-flutter build web --release
+# 4. 앱을 웹용으로 릴리즈 빌드합니다. (최종 경로 수정: lib/app.dart)
+flutter build web --release --target=lib/app.dart
