@@ -21,4 +21,7 @@ flutter precache --web
 
 # 5. 앱 빌드 명령어를 실행합니다.
 flutter pub get
-flutter build web --release
+# 🌟🌟🌟 가장 중요한 수정 🌟🌟🌟
+# 'lib/main.dart' 대신 실제 앱 시작 파일 경로를 입력하세요.
+# 만약 'lib/src/main.dart'라면 아래처럼 수정합니다. (가장 흔한 경우)
+flutter build web --release --target=lib/src/main.dart
