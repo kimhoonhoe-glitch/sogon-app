@@ -1,7 +1,6 @@
 [build]
-# 빌드 명령을 우리가 만든 스크립트 하나만 실행하도록 수정합니다.
-# 이 스크립트가 Flutter 설치와 빌드를 모두 처리합니다.
-command = "./netlify-build.sh"
+# netlify-build.sh 스크립트를 실행하도록 설정합니다.
+command = "bash ./netlify-build.sh"
 
-# 배포 폴더는 그대로 둡니다.
+# 빌드 결과 폴더를 build/web으로 명시합니다.
 publish = "build/web"
