@@ -17,28 +17,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       // 3. 앱이 시작될 때 가장 먼저 보여줄 화면을 지정합니다.
-      home: const MyOriginalAppScreen(), // ⬅️ 여기에 당신의 원래 앱 시작 위젯 이름을 넣습니다.
+      home: const MyOriginalAppScreen(), // ⬅️ 여기에 당신의 원래 앱 시작 위젯 이름을 넣어주세요.
     );
   }
 }
 
 // 4. 당신의 원래 앱 코드가 들어갈 자리입니다. (임시 블록)
 // ⚠️ 이 클래스 전체를 지우고, 당신의 원래 앱 코드를 넣어주세요!
-class MyOriginalAppScreen extends StatelessWidget {
-  const MyOriginalAppScreen({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('SUCCESS! 앱 로직 복구 필요'),
-      ),
-      body: const Center(
-        child: Text(
-          'SUCCESS! 여기에 당신의 원래 앱 위젯을 넣으세요.',
-          style: TextStyle(fontSize: 20, color: Colors.green),
-        ),
-      ),
-    );
   }
 }
