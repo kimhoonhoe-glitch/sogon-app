@@ -1,8 +1,8 @@
 name: sogon_app
 description: "A new Flutter project."
-# 이 부분을 복붙하세요. 띄어쓰기를 정확히 지켜야 합니다.
+# 이 부분을 찾아서 아래처럼 수정하거나, 이 코드가 보이지 않는다면 아래처럼 추가합니다.
 environment:
-  sdk: '>=3.9.0 <4.0.0'
+  sdk: ">=2.12.0 <4.0.0" # 이 줄이 중요합니다! 널 안전성(Null Safety)을 위한 최소 버전인 2.12.0을 명시합니다.
 
 # 아래부터는 원래 있던 내용입니다. (dependencies: 등)
 dependencies:
