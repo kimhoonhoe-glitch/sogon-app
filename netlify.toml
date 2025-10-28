@@ -1,6 +1,6 @@
 [build]
-  command = "flutter build web --release"
-  publish = "build/web"
+command = "flutter build web --release"
+publish = "build/web"
 ```
 
 ### 2단계: Git에 푸시하여 배포 완료 (터미널에서 복붙)
@@ -13,7 +13,7 @@
 git add netlify.toml
 
 # 2. 커밋합니다. (이제 문법 오류는 없습니다.)
-git commit -m "FINAL RESOLVE: Cleaned and validated netlify.toml syntax"
+git commit -m "FINAL ENDGAME: Cleaned and validated netlify.toml"
 
 # 3. GitHub에 올려 줘! 이젠 정말 끝입니다.
 git push origin main
