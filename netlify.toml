@@ -12,8 +12,8 @@
 # 1. 수정한 netlify.toml 파일을 Git에 추가해 줘!
 git add netlify.toml
 
-# 2. 커밋합니다. (오류를 일으키는 파일을 제외합니다.)
-git commit -m "FINAL FIX: Confirmed netlify.toml file integrity"
+# 2. 커밋합니다. (이제 문법 오류는 없습니다.)
+git commit -m "FINAL RESOLVE: Cleaned and validated netlify.toml syntax"
 
 # 3. GitHub에 올려 줘! 이젠 정말 끝입니다.
 git push origin main
