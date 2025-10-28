@@ -36,5 +36,14 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
+localPort = 38813
+externalPort = 3001
+
+[[ports]]
 localPort = 43905
 externalPort = 3000
+
+[deployment]
+build = ["sh", "-c", "flutter build web --release"]
+deploymentTarget = "static"
+publicDir = "build"
