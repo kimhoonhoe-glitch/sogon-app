@@ -1,39 +1,70 @@
 import 'package:flutter/material.dart';
 
+// main 함수: Flutter 앱의 시작점
 void main() {
-  runApp(const MyApp());
+  // 앱 실행 시 Flutter 웹을 위한 설정이 자동으로 이루어집니다.
+  runApp(const SogonApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+// 최상위 위젯: 앱의 구조 정의
+class SogonApp extends StatelessWidget {
+  const SogonApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 앱의 가장 큰 틀과 기본 설정을 담당합니다.
+    // MaterialApp을 사용하여 기본적인 디자인 시스템을 적용합니다.
     return MaterialApp(
-      title: 'Sogon App', 
+      title: '소곤 AI 상담 앱 (Clean Template)',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.deepPurple, // 앱의 주 색상 설정
+        useMaterial3: true,
       ),
-      // 앱이 시작될 때 가장 먼저 보여줄 화면을 지정합니다.
-      home: const MyOriginalAppScreen(), 
+      home: const HomeScreen(), // 앱이 시작될 때 표시할 화면
     );
   }
 }
 
-// 당신의 앱 코드가 들어갈 최종 템플릿입니다.
-// 이 클래스 전체를 지우고, 당신의 원래 앱 화면 클래스를 넣어주세요!
-class MyOriginalAppScreen extends StatelessWidget {
-  const MyOriginalAppScreen({Key? key}) : super(key: key);
+// 메인 화면 위젯: 앱의 내용을 담는 공간
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold 안의 body에 당신의 앱 UI 코드를 넣어주세요.
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          'SUCCESS! 여기에 당신의 원래 앱 위젯을 넣으세요.',
-          style: TextStyle(fontSize: 20, color: Colors.green),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('소곤 앱 - 전문가 시스템 복구 완료'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              // 성공적인 복구를 알리는 메시지
+              Icon(
+                Icons.check_circle_outline,
+                color: Colors.green,
+                size: 60,
+              ),
+              SizedBox(height: 20),
+              Text(
+                '시스템 복구 완료 및 클린 템플릿 준비됨',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 10),
+              Text(
+                '이제 Netlify 빌드 및 Git 정리 작업을 진행하세요. 이 코드는 에러 없이 실행될 것입니다.',
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
